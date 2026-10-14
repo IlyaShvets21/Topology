@@ -1,0 +1,10 @@
+# Архивы
+*.zip
+
+# Кэш Visual Studio
+.vs/
+bin/
+obj/
+*.ipch
+*.suo
+*.user

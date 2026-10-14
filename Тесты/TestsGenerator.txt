@@ -1,0 +1,250 @@
+import random
+import sys
+
+
+# ---------- Генерация блоков ----------
+
+def make_blocks(n, seed=42, min_size=40, max_size=200, rot_prob=0.7):
+    """
+    Генерирует n блоков B1..Bn со случайными размерами.
+    rot_prob — вероятность, что rotation_allowed == true.
+    """
+    random.seed(seed)
+    blocks = []
+    for i in range(1, n + 1):
+        w = random.randint(min_size, max_size)
+        h = random.randint(min_size, max_size)
+        # Делаем блоки не квадратными, чтобы поворот имел смысл
+        if w == h:
+            h += random.randint(10, 50)
+        blocks.append({
+            "id": f"B{i}",
+            "width": w,
+            "height": h,
+            "rotation_allowed": random.random() < rot_prob
+        })
+    return blocks
+
+
+# ---------- Генерация sequence_pair ----------
+
+def make_sequence_pair(n, seed=42):
+    """Генерирует корректную sequence_pair для n блоков B1..Bn."""
+    random.seed(seed + 1)   # другой seed, чтобы не совпадало с blocks
+    ids = [f"B{i}" for i in range(1, n + 1)]
+    A = ids.copy()
+    B = ids.copy()
+    random.shuffle(A)
+    random.shuffle(B)
+    return {"A": A, "B": B}
+
+
+# ---------- Генерация nets ----------
+
+def make_nets(n, seed=42, min_nets=None, max_nets=None,
+              min_blocks_per_net=2, max_blocks_per_net=5):
+    """
+    Генерирует список nets. Каждый net связывает от 2 до max_blocks_per_net
+    блоков. Каждая пара блоков внутри net'а трактуется как соединение
+    (clique-модель).
+    """
+    random.seed(seed + 2)
+
+    if min_nets is None:
+        min_nets = max(2, n // 5)
+    if max_nets is None:
+        max_nets = max(min_nets, n // 2)
+
+    num_nets = random.randint(min_nets, max_nets)
+    ids = [f"B{i}" for i in range(1, n + 1)]
+
+    nets = []
+    seen = set()   # чтобы избежать полных дубликатов
+
+    for k in range(1, num_nets + 1):
+        k_max = min(max_blocks_per_net, n)
+        k_min = min(min_blocks_per_net, k_max)
+        size = random.randint(k_min, k_max)
+
+        block_ids = random.sample(ids, size)
+        key = tuple(sorted(block_ids))
+        if key in seen:
+            continue
+        seen.add(key)
+
+        nets.append({
+            "net_id": f"N{k}",
+            "block_ids": block_ids
+        })
+
+    return nets
+
+
+# ---------- Валидация ----------
+
+def validate_sequence_pair(sp, n):
+    ids = {f"B{i}" for i in range(1, n + 1)}
+    A, B = sp["A"], sp["B"]
+    errors = []
+    if len(A) != n:
+        errors.append(f"A: длина {len(A)} != {n}")
+    if len(B) != n:
+        errors.append(f"B: длина {len(B)} != {n}")
+    if len(set(A)) != n:
+        errors.append(f"A: дубликаты ({n - len(set(A))} шт.)")
+    if len(set(B)) != n:
+        errors.append(f"B: дубликаты ({n - len(set(B))} шт.)")
+    if set(A) != ids:
+        errors.append("A: не совпадает множество id")
+    if set(B) != ids:
+        errors.append("B: не совпадает множество id")
+    if errors:
+        print("ОШИБКИ в sequence_pair:", file=sys.stderr)
+        for e in errors:
+            print("  -", e, file=sys.stderr)
+        return False
+    print(f"OK: sequence_pair для {n} блоков корректна", file=sys.stderr)
+    return True
+
+
+def validate_nets(nets, n):
+    ids = {f"B{i}" for i in range(1, n + 1)}
+    errors = []
+    for net in nets:
+        if not net["net_id"]:
+            errors.append("net с пустым net_id")
+        if len(net["block_ids"]) < 2:
+            errors.append(f'{net["net_id"]}: меньше 2 блоков')
+        for b in net["block_ids"]:
+            if b not in ids:
+                errors.append(f'{net["net_id"]}: неизвестный блок {b}')
+    if errors:
+        print("ОШИБКИ в nets:", file=sys.stderr)
+        for e in errors:
+            print("  -", e, file=sys.stderr)
+        return False
+    print(f"OK: {len(nets)} nets корректны", file=sys.stderr)
+    return True
+
+
+# ---------- Форматирование ----------
+
+def format_sequence_pair(sp, per_line=10, indent=2):
+    pad = " " * indent
+    inner = " " * (indent + 2)
+    lines = ['{']
+    for key in ("A", "B"):
+        lines.append(f'{inner}"{key}": [')
+        arr = sp[key]
+        for i in range(0, len(arr), per_line):
+            chunk = arr[i:i + per_line]
+            line = inner + "  " + ", ".join(f'"{x}"' for x in chunk)
+            if i + per_line < len(arr):
+                line += ","
+            lines.append(line)
+        lines.append(f'{inner}]{"," if key == "A" else ""}')
+    lines.append(f'{pad}}}')
+    return "\n".join(lines)
+
+
+def format_blocks(blocks, indent=2):
+    pad = " " * indent
+    inner = " " * (indent + 2)
+    lines = ["["]
+    for i, b in enumerate(blocks):
+        lines.append(f"{inner}{{")
+        lines.append(f'{inner}  "id": "{b["id"]}",')
+        lines.append(f'{inner}  "width": {b["width"]},')
+        lines.append(f'{inner}  "height": {b["height"]},')
+        rot = "true" if b["rotation_allowed"] else "false"
+        lines.append(f'{inner}  "rotation_allowed": {rot}')
+        end = "," if i + 1 < len(blocks) else ""
+        lines.append(f"{inner}}}{end}")
+    lines.append(f"{pad}]")
+    return "\n".join(lines)
+
+
+def format_nets(nets, indent=2):
+    pad = " " * indent
+    inner = " " * (indent + 2)
+    lines = ["["]
+    for i, net in enumerate(nets):
+        lines.append(f"{inner}{{")
+        lines.append(f'{inner}  "net_id": "{net["net_id"]}",')
+        ids = ", ".join(f'"{x}"' for x in net["block_ids"])
+        lines.append(f'{inner}  "block_ids": [{ids}]')
+        end = "," if i + 1 < len(nets) else ""
+        lines.append(f"{inner}}}{end}")
+    lines.append(f"{pad}]")
+    return "\n".join(lines)
+
+
+def format_full_json(blocks, sp, nets, design, decoder_params):
+    """
+    Собирает полный JSON вручную, чтобы контролировать форматирование
+    и порядок секций (совместимо с read в C++).
+    """
+    lines = []
+    lines.append("{")
+    lines.append('  "design": {')
+    lines.append(f'    "chip_width": {design["chip_width"]},')
+    lines.append(f'    "chip_height": {design["chip_height"]},')
+    lines.append(f'    "grid_size": {design["grid_size"]},')
+    rot = "true" if design["rotation_allowed"] else "false"
+    lines.append(f'    "rotation_allowed": {rot}')
+    lines.append("  },")
+    lines.append('  "blocks": ' + format_blocks(blocks, indent=2) + ",")
+    lines.append('  "sequence_pair": ' + format_sequence_pair(sp, indent=2) + ",")
+    lines.append('  "nets": ' + format_nets(nets, indent=2) + ",")
+    lines.append('  "decoder_params": {')
+    lines.append('    "use_b_tree": ' +
+                 ("true" if decoder_params["use_b_tree"] else "false") + ",")
+    lines.append('    "allow_rotation_during_decode": ' +
+                 ("true" if decoder_params["allow_rotation_during_decode"]
+                  else "false") + ",")
+    lines.append(f'    "placement_strategy": "{decoder_params["placement_strategy"]}"')
+    lines.append("  }")
+    lines.append("}")
+    return "\n".join(lines)
+
+
+# ---------- Основной сценарий ----------
+
+def generate(n=50, seed=42, strategy="min_hpwl"):
+    """
+    Генерирует полный JSON и возвращает его строкой.
+    Печатает JSON в stdout, диагностику — в stderr.
+    """
+    blocks = make_blocks(n, seed=seed)
+    sp     = make_sequence_pair(n, seed=seed)
+    nets   = make_nets(n, seed=seed)
+
+    if not validate_sequence_pair(sp, n):
+        sys.exit(1)
+    if not validate_nets(nets, n):
+        sys.exit(1)
+
+    # Параметры чипа — с запасом, чтобы блоки точно влезли
+    total_area = sum(b["width"] * b["height"] for b in blocks)
+    side = int((total_area ** 0.5) * 2)
+
+    design = {
+        "chip_width":  side,
+        "chip_height": side,
+        "grid_size":   10,
+        "rotation_allowed": True
+    }
+    decoder_params = {
+        "use_b_tree": False,
+        "allow_rotation_during_decode": True,
+        "placement_strategy": strategy
+    }
+
+    text = format_full_json(blocks, sp, nets, design, decoder_params)
+
+    print(text)   # JSON в stdout
+    return text
+
+
+if __name__ == "__main__":
+    generate(n=50, seed=42, strategy="min_hpwl")

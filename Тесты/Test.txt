@@ -1,0 +1,36 @@
+{
+  "design": {
+    "chip_width": 1000,
+    "chip_height": 800,
+    "grid_size": 10
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "width": 50,
+      "height": 40,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B2",
+      "width": 110,
+      "height": 30,
+      "rotation_allowed": true
+    }
+  ],
+  "sequence_pair": {
+    "A": ["B1", "B2"],
+    "B": ["B2", "B1"]
+  },
+"nets": [
+    {
+      "net_id": "N1",
+      "block_ids": ["B1", "B2"]
+    }
+  ],
+  "decoder_params": {
+    "use_b_tree": false,
+    "allow_rotation_during_decode": true,
+    "placement_strategy": "min_hpwl"
+  }
+}

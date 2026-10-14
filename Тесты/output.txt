@@ -1,0 +1,9 @@
+
+Placement:
+   B1 at (0, 0) size 50x40
+   B2 at (0, 40) size 110x30
+
+Quality metrics:
+   total area = 110x70
+   total hpwl = 46.0977
+   decoding time = 8.82e-05s

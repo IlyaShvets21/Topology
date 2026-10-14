@@ -1,0 +1,13 @@
+﻿   Qt/MSBuild: 3.5.0.0
+  Reading Qt configuration (C:/Qt/Qt5.14.1/5.14.1/msvc2017_64/bin/qmake)
+   Qt: 5.14.1
+  Logger.cpp
+  main.cpp
+  MainWindow.cpp
+  Placer.cpp
+  Reader.cpp
+  Writer.cpp
+C:\Users\i.shvets\Desktop\МИЭТ\Топология\Topology2\Topology2\Placer.cpp(38,27): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  moc_Logger.cpp
+  moc_MainWindow.cpp
+  Topology2.vcxproj -> C:\Users\i.shvets\Desktop\МИЭТ\Топология\Topology2\x64\Debug\Topology2.exe

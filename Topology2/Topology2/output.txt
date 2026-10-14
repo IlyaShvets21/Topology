@@ -1,0 +1,26 @@
+
+Placement:
+   B1 at (0, 0) size 80x120
+   B2 at (280, 0) size 150x90
+   B3 at (80, 0) size 200x100
+   B4 at (480, 70) size 70x70
+   B5 at (360, 90) size 120x160
+   B6 at (0, 120) size 110x90
+   B7 at (640, 0) size 140x60
+   B8 at (280, 90) size 80x180
+   B9 at (895, 0) size 130x110
+   B10 at (780, 0) size 100x100
+   B11 at (480, 0) size 150x70
+   B12 at (1025, 0) size 60x130
+   B13 at (550, 70) size 90x180
+   B14 at (1215, 0) size 95x140
+   B15 at (640, 60) size 100x170
+   B16 at (1360, 0) size 75x85
+   B17 at (780, 100) size 115x125
+   B18 at (1025, 130) size 190x60
+   B19 at (895, 110) size 85x160
+   B20 at (1215, 140) size 145x95
+
+Quality metrics:
+   total = 1435x270
+   decoding time = 0.0149203s
