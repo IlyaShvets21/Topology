@@ -33,7 +33,7 @@ QVector<int> longestPath(int n, const QVector<QVector<int>>& edges, const QVecto
 		if (indeg[i] == 0) queue.push_back(i);
 	}
 
-	std::size_t head = 0;
+	int head = 0;
 	while (head < queue.size()) {
 		const int u = queue[head++];
 		for (int v : edges[u]) {
@@ -44,7 +44,10 @@ QVector<int> longestPath(int n, const QVector<QVector<int>>& edges, const QVecto
 	return coord;
 }
 
-static double computeHPWL(const FileData& data, const QVector<int>& x, const QVector<int>& y,
+/************************************************************************************
+ *  @brief  Функция минимизации суммарной HPWL
+ ***********************************************************************************/
+static double scoreHPWL(const FileData& data, const QVector<int>& x, const QVector<int>& y,
 						  const QVector<int>& w, const QVector<int>& h) {
 	QHash<QString, int> index;
 	index.reserve(data.blocks.size() * 2);
@@ -81,6 +84,9 @@ static double computeHPWL(const FileData& data, const QVector<int>& x, const QVe
 	return total;
 }
 
+/************************************************************************************
+ *  @brief  Функция минимизации плотности упаковки
+ ***********************************************************************************/
 PlacementImprovements improve(const FileData& data, QVector<int>& w, QVector<int>& h) {
 	const auto& blocks = data.blocks;
 	const int n = static_cast<int>(blocks.size());
@@ -121,10 +127,13 @@ PlacementImprovements improve(const FileData& data, QVector<int>& w, QVector<int
 	imp.totalWidth = maxX;
 	imp.totalHeight = maxY;
 	imp.area = 1LL * maxX * maxY;
-	imp.hpwl = computeHPWL(data, imp.x, imp.y, w, h);
+	imp.hpwl = scoreHPWL(data, imp.x, imp.y, w, h);
 	return imp;
 }
 
+/************************************************************************************
+ *  @brief  Функция размещения блоков внутри рабочего поля
+ ***********************************************************************************/
 PlacementResult place(const FileData& data) {
 	const auto& blocks = data.blocks;
 	const int n = static_cast<int>(blocks.size());
@@ -177,6 +186,7 @@ PlacementResult place(const FileData& data) {
 						best = candidate;
 						rotate[i] = !rotate[i];
 						improved = true;
+						
 					}
 					else {
 						std::swap(w[i], h[i]);

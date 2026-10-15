@@ -13,8 +13,8 @@
     },
     {
       "id": "B2",
-      "width": 110,
-      "height": 30,
+      "width": 30,
+      "height": 110,
       "rotation_allowed": true
     }
   ],

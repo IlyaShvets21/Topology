@@ -7,10 +7,10 @@
 #include <QVector>
 #include <algorithm>
 
-QString trim(const QString& s) {
-    return s.trimmed();
-}
 
+/************************************************************************************
+ *  @brief  Функция парсинга строчки для нахождения ключевых имен параметров
+ ***********************************************************************************/
 bool parseKeyValue(const QString& line, QString& key, QString& value) {
     const int colon = line.indexOf(':');
     if (colon == -1) return false;
@@ -32,6 +32,9 @@ bool parseKeyValue(const QString& line, QString& key, QString& value) {
     return !key.isEmpty() && !value.isEmpty();
 }
 
+/************************************************************************************
+ *  @brief  Функция парсинга списков блоков, задающих парную последовательность 
+ ***********************************************************************************/
 bool parseSequenceList(const QString& line, const QString& name, FileData& data) {
     const int lb = line.indexOf('[');
     const int rb = line.lastIndexOf(']');
@@ -75,6 +78,9 @@ bool parseSequenceList(const QString& line, const QString& name, FileData& data)
     return true;
 }
 
+/************************************************************************************
+ *  @brief  Функция парсинга списков блоков, задающих соединения
+ ***********************************************************************************/
 bool parseNetsList(const QString& line, const QString& name, NetsData& netsData, FileData& data) {
     const int lb = line.indexOf('[');
     const int rb = line.lastIndexOf(']');
@@ -118,6 +124,9 @@ bool parseNetsList(const QString& line, const QString& name, NetsData& netsData,
     return true;
 }
 
+/************************************************************************************
+ *  @brief  Функция чтения входного файла
+ ***********************************************************************************/
 bool read(const QString& filename, FileData& data) {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -146,7 +155,7 @@ bool read(const QString& filename, FileData& data) {
 
     while (!in.atEnd()) {
         const QString line = in.readLine();
-        const QString t = trim(line);
+        const QString t = line.trimmed();
         if (t.isEmpty()) continue;
 
         if (!fileStart) {
@@ -158,6 +167,7 @@ bool read(const QString& filename, FileData& data) {
             continue;
         }
 
+        //Определение ключевого слова, определяющего группу параметров
         if (section == Section::Undefined) {
             if (t.contains("\"design\"")) {
                 if (designCount == 1) {
@@ -214,6 +224,7 @@ bool read(const QString& filename, FileData& data) {
             continue;
         }
 
+        //Считывание параметров группы design
         if (section == Section::Design) {
             if (t == "}," || t == "}") {
                 if (data.designData.chipWidth == 0 || data.designData.chipHeight == 0 ||data.designData.gridSize == 0) {
@@ -243,6 +254,7 @@ bool read(const QString& filename, FileData& data) {
             continue;
         }
 
+        //Считывание параметров группы blocks
         if (section == Section::Blocks) {
             if (t == "]," || t == "]") {
                 section = Section::Undefined;
@@ -274,12 +286,16 @@ bool read(const QString& filename, FileData& data) {
             if (!parseKeyValue(t, key, value)) continue;
 
             if (key == "id") {
-                QString parseValue;
-                if (value.size() > 2 &&
-                    value.startsWith('"') && value.endsWith('"')) {
-                    parseValue = value.mid(1, value.size() - 2);
+                if (value.size() < 2 || !value.startsWith('"') || !value.endsWith('"')) return false;
+
+                const QString inner = value.mid(1, value.size() - 2);
+
+                if (inner.trimmed().isEmpty()) {
+                    Logger::instance().log("The block name must not be empty.");
+                    return false;
                 }
-                blockData.id = parseValue;
+
+                blockData.id = inner;
                 Logger::instance().log(QString("   id = %1").arg(blockData.id));
             }
             else if (key == "width") {
@@ -297,6 +313,7 @@ bool read(const QString& filename, FileData& data) {
             continue;
         }
 
+        //Считывание параметров группы sequence_pair
         if (section == Section::SequencePair) {
             if (t == "}" || t == "},") {
                 for (const auto& b : data.blocks) {
@@ -363,6 +380,7 @@ bool read(const QString& filename, FileData& data) {
             continue;
         }
 
+        //Считывание параметров группы nets
         if (section == Section::Nets) {
             if (t == "]," || t == "]") {
                 section = Section::Undefined;
@@ -404,12 +422,16 @@ bool read(const QString& filename, FileData& data) {
             if (!parseKeyValue(t, key, value)) continue;
 
             if (key == "net_id") {
-                QString parseValue;
-                if (value.size() > 2 &&
-                    value.startsWith('"') && value.endsWith('"')) {
-                    parseValue = value.mid(1, value.size() - 2);
+                if (value.size() < 2 || !value.startsWith('"') || !value.endsWith('"')) return false;
+
+                const QString inner = value.mid(1, value.size() - 2);
+
+                if (inner.trimmed().isEmpty()) {
+                    Logger::instance().log("The net name must not be empty.");
+                    return false;
                 }
-                netsData.net_id = parseValue;
+
+                netsData.net_id = inner;
                 Logger::instance().log(QString("   net_id = %1").arg(netsData.net_id));
             }
 
@@ -425,6 +447,7 @@ bool read(const QString& filename, FileData& data) {
             continue;
         }
 
+        //Считывание параметров группы decoder_params
         if (section == Section::DecoderParams) {
             if (t == "}" || t == "},") {
                 const QString& ps = data.decoderParamsData.placementStrategy;

@@ -93,8 +93,6 @@ void MainWindow::onRunClicked() {
 	auto end = std::chrono::steady_clock::now();
 	auto elapsed = std::chrono::duration<double>(end - start);
 
-	Logger::instance().log(tr("Placement done in %1 s").arg(QString::number(elapsed.count(), 'f', 3)));
-
 	if (!write(outputPath, result, data, elapsed)) {
 		Logger::instance().log(tr("ERROR: failed to write result"));
 		runButton_->setEnabled(true);

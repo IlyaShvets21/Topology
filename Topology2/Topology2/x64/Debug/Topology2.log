@@ -7,7 +7,6 @@
   Placer.cpp
   Reader.cpp
   Writer.cpp
-C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\Placer.cpp(38,27): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
   moc_Logger.cpp
   moc_MainWindow.cpp
   Topology2.vcxproj -> C:\Users\i.shvets\Desktop\Топология\Topology2\x64\Debug\Topology2.exe
