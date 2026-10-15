@@ -1,0 +1,175 @@
+{
+  "design": {
+    "chip_width": 1040,
+    "chip_height": 1040,
+    "grid_size": 10,
+    "rotation_allowed": true
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "width": 68,
+      "height": 46,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B2",
+      "width": 102,
+      "height": 97,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B3",
+      "width": 66,
+      "height": 179,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B4",
+      "width": 148,
+      "height": 48,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B5",
+      "width": 95,
+      "height": 99,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B6",
+      "width": 46,
+      "height": 183,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B7",
+      "width": 179,
+      "height": 147,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B8",
+      "width": 190,
+      "height": 111,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B9",
+      "width": 41,
+      "height": 80,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B10",
+      "width": 127,
+      "height": 111,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B11",
+      "width": 126,
+      "height": 66,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B12",
+      "width": 64,
+      "height": 131,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B13",
+      "width": 194,
+      "height": 107,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B14",
+      "width": 157,
+      "height": 177,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B15",
+      "width": 136,
+      "height": 60,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B16",
+      "width": 200,
+      "height": 198,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B17",
+      "width": 132,
+      "height": 187,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B18",
+      "width": 57,
+      "height": 51,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B19",
+      "width": 114,
+      "height": 60,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B20",
+      "width": 65,
+      "height": 137,
+      "rotation_allowed": true
+    }
+  ],
+  "sequence_pair": {
+    "A": [
+      "B9", "B14", "B6", "B3", "B7", "B4", "B18", "B1", "B17", "B19",
+      "B8", "B20", "B13", "B16", "B11", "B12", "B15", "B5", "B10", "B2"
+    ],
+    "B": [
+      "B19", "B1", "B16", "B20", "B11", "B10", "B5", "B15", "B12", "B8",
+      "B9", "B14", "B18", "B3", "B7", "B17", "B4", "B2", "B6", "B13"
+    ]
+  },
+  "nets": [
+    {
+      "net_id": "N1",
+      "block_ids": ["B6", "B13"]
+    },
+    {
+      "net_id": "N2",
+      "block_ids": ["B10", "B1", "B8"]
+    },
+    {
+      "net_id": "N3",
+      "block_ids": ["B19", "B1"]
+    },
+    {
+      "net_id": "N4",
+      "block_ids": ["B6", "B17"]
+    },
+    {
+      "net_id": "N5",
+      "block_ids": ["B13", "B19", "B20", "B11"]
+    },
+    {
+      "net_id": "N6",
+      "block_ids": ["B3", "B11", "B10", "B6"]
+    },
+    {
+      "net_id": "N7",
+      "block_ids": ["B17", "B3"]
+    }
+  ],
+  "decoder_params": {
+    "use_b_tree": false,
+    "allow_rotation_during_decode": true,
+    "placement_strategy": "min_hpwl"
+  }
+}
