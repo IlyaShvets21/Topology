@@ -106,6 +106,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Placer.cpp" />
     <ClCompile Include="Reader.cpp" />
+    <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="Writer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +114,7 @@
     <QtMoc Include="MainWindow.hpp" />
     <ClInclude Include="Placer.hpp" />
     <ClInclude Include="Reader.hpp" />
+    <QtMoc Include="Viewer.hpp" />
     <ClInclude Include="Writer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

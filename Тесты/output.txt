@@ -1,9 +1,57 @@
 
 Placement:
-   B1 at (0, 0) size 50x40
-   B2 at (0, 40) size 30x110
+   B1 at (178, 507) size 68x46
+   B2 at (866, 576) size 97x102
+   B3 at (787, 711) size 179x66
+   B4 at (1026, 397) size 148x48
+   B5 at (931, 356) size 95x99
+   B6 at (931, 310) size 183x46
+   B7 at (1526, 0) size 147x179
+   B8 at (253, 138) size 190x111
+   B9 at (594, 230) size 41x80
+   B10 at (963, 576) size 127x111
+   B11 at (443, 104) size 66x126
+   B12 at (1026, 445) size 64x131
+   B13 at (0, 722) size 194x107
+   B14 at (0, 0) size 157x177
+   B15 at (0, 314) size 136x60
+   B16 at (731, 310) size 200x198
+   B17 at (325, 522) size 132x187
+   B18 at (253, 81) size 51x57
+   B19 at (605, 818) size 114x60
+   B20 at (0, 177) size 65x137
+   B21 at (253, 0) size 133x81
+   B22 at (635, 104) size 93x108
+   B23 at (399, 445) size 195x58
+   B24 at (1090, 469) size 176x102
+   B25 at (594, 365) size 137x109
+   B26 at (605, 606) size 182x96
+   B27 at (457, 508) size 54x98
+   B28 at (325, 850) size 142x120
+   B29 at (1114, 212) size 94x185
+   B30 at (1526, 179) size 94x120
+   B31 at (258, 365) size 141x157
+   B32 at (0, 970) size 75x103
+   B33 at (605, 711) size 177x107
+   B34 at (1208, 212) size 149x189
+   B35 at (157, 0) size 96x75
+   B36 at (457, 798) size 63x52
+   B37 at (246, 522) size 79x200
+   B38 at (457, 606) size 148x192
+   B39 at (194, 970) size 137x192
+   B40 at (443, 0) size 175x104
+   B41 at (520, 818) size 69x42
+   B42 at (1114, 104) size 177x108
+   B43 at (1208, 401) size 127x68
+   B44 at (399, 365) size 156x80
+   B45 at (467, 860) size 107x168
+   B46 at (1357, 212) size 169x67
+   B47 at (258, 249) size 169x116
+   B48 at (787, 576) size 79x135
+   B49 at (0, 507) size 178x175
+   B50 at (136, 314) size 122x193
 
 Quality metrics:
-   total area = 50x150
-   total HPWL = 75.6637
-   decoding time = 9.38e-05s
+   total area = 1673x1162
+   total HPWL = 41110.4
+   decoding time = 0.410417s

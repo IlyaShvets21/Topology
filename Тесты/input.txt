@@ -1,36 +1,58 @@
 {
   "design": {
-    "chip_width": 1000,
-    "chip_height": 800,
-    "grid_size": 10
+    "chip_width": 450,
+    "chip_height": 300,
+    "grid_size": 40
   },
   "blocks": [
     {
       "id": "B1",
-      "width": 50,
-      "height": 40,
+      "width": 120,
+      "height": 80,
       "rotation_allowed": true
     },
     {
       "id": "B2",
-      "width": 30,
-      "height": 110,
+      "width": 80,
+      "height": 160,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B3",
+      "width": 200,
+      "height": 100,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B4",
+      "width": 60,
+      "height": 60,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B5",
+      "width": 120,
+      "height": 160,
       "rotation_allowed": true
     }
   ],
   "sequence_pair": {
-    "A": ["B1", "B2"],
-    "B": ["B2", "B1"]
+    "A": ["B1", "B3", "B2", "B5", "B4"],
+    "B": ["B3", "B1", "B5", "B2", "B4"]
   },
 "nets": [
     {
       "net_id": "N1",
-      "block_ids": ["B1", "B2"]
+      "block_ids": ["B1", "B4", "B5"]
+    },
+    {
+      "net_id": "N2",
+      "block_ids": ["B2", "B3"]
     }
   ],
   "decoder_params": {
     "use_b_tree": false,
     "allow_rotation_during_decode": true,
-    "placement_strategy": "min_hpwl"
+    "placement_strategy": "bottom_left"
   }
 }

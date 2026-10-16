@@ -5,6 +5,12 @@
  ************************************************************************************/
 #pragma once
 
+#include "Logger.hpp"
+#include "Reader.hpp"
+#include "Placer.hpp"
+#include "Writer.hpp"
+#include "Viewer.hpp"
+
 #include <QMainWindow>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -17,18 +23,25 @@ public:
 	~MainWindow() override = default;
 
 private slots:
-	void onRunClicked();
-	void onClearClicked();
-	void onBrowseClicked();
-	void appendLog(const QString& message);
+	void onRunClicked		();
+	void onClearClicked		();
+	void onBrowseClicked	();
+	void onViewClicked		();
+	void appendLog			(const QString& message);
 
 private:
-	QPushButton* runButton_ = nullptr;
-	QPushButton* clearButton_ = nullptr;
-	QPushButton* browseButton_ = nullptr;
-	QPlainTextEdit* logView_ = nullptr;
-	QLabel* statusLabel_ = nullptr;
-	QLabel* fileLabel_ = nullptr;
+	QPushButton		*runButton		= nullptr;
+	QPushButton		*clearButton	= nullptr,
+					*browseButton	= nullptr,
+					*viewButton 	= nullptr;
+	QPlainTextEdit  *logView		= nullptr;
+	QLabel			*statusLabel	= nullptr,
+					*fileLabel		= nullptr;
 
-	QString currentPath_;
+	Viewer			*viewer			= nullptr;
+	QString			currentPath;
+
+	bool			hasResult		= false;
+	PlacementResult lastResult;
+	FileData		lastData;
 };
