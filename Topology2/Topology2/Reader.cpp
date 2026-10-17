@@ -160,7 +160,7 @@ bool read(const QString& filename, FileData& data) {
 
         if (!fileStart) {
             if (!line.contains('{')) {
-                Logger::instance().log("No initial data declaration was found");
+                Logger::instance().log("Error: No initial data declaration was found");
                 return false;
             }
             fileStart = true;
@@ -171,55 +171,55 @@ bool read(const QString& filename, FileData& data) {
         if (section == Section::Undefined) {
             if (t.contains("\"design\"")) {
                 if (designCount == 1) {
-                    Logger::instance().log("Only a single crystal data entry is possible");
+                    Logger::instance().log("Error: Only a single crystal data entry is possible");
                     return false;
                 }
                 section = Section::Design;
-                Logger::instance().log("design:");
+                //Logger::instance().log("design:");
             }
             else if (t.contains("\"blocks\"")) {
                 if (designCount == 0) {
-                    Logger::instance().log("No data on the chip is provided");
+                    Logger::instance().log("Error: No data on the chip is provided");
                     return false;
                 }
                 section = Section::Blocks;
-                Logger::instance().log("blocks:");
+                //Logger::instance().log("blocks:");
             }
             else if (t.contains("\"sequence_pair\"")) {
                 if (designCount == 0) {
-                    Logger::instance().log("No data on the chip is provided");
+                    Logger::instance().log("Error: No data on the chip is provided");
                     return false;
                 }
                 if (blocksCount == 0) {
-                    Logger::instance().log("No data on the blocks is provided");
+                    Logger::instance().log("Error: No data on the blocks is provided");
                     return false;
                 }
                 section = Section::SequencePair;
-                Logger::instance().log("sequence_pair:");
+                //Logger::instance().log("sequence_pair:");
             }
             else if (t.contains("\"nets\"")) {
                 if (designCount == 0) {
-                    Logger::instance().log("No data on the chip is provided");
+                    Logger::instance().log("Error: No data on the chip is provided");
                     return false;
                 }
                 if (blocksCount == 0) {
-                    Logger::instance().log("No data on the blocks is provided");
+                    Logger::instance().log("Error: No data on the blocks is provided");
                     return false;
                 }
                 section = Section::Nets;
-                Logger::instance().log("nets:");
+                //Logger::instance().log("nets:");
             }
             else if (t.contains("\"decoder_params\"")) {
                 if (designCount == 0) {
-                    Logger::instance().log("No data on the chip is provided");
+                    Logger::instance().log("Error: No data on the chip is provided");
                     return false;
                 }
                 if (blocksCount == 0) {
-                    Logger::instance().log("No data on the blocks is provided");
+                    Logger::instance().log("Error: No data on the blocks is provided");
                     return false;
                 }
                 section = Section::DecoderParams;
-                Logger::instance().log("decoder_params:");
+                //Logger::instance().log("decoder_params:");
             }
             continue;
         }
@@ -228,7 +228,7 @@ bool read(const QString& filename, FileData& data) {
         if (section == Section::Design) {
             if (t == "}," || t == "}") {
                 if (data.designData.chipWidth == 0 || data.designData.chipHeight == 0 ||data.designData.gridSize == 0) {
-                    Logger::instance().log("One of the chip parameters is not specified. " "All data must be provided");
+                    Logger::instance().log("Error: One of the chip parameters is not specified. " "All data must be provided");
                     return false;
                 }
                 ++designCount;
@@ -241,15 +241,15 @@ bool read(const QString& filename, FileData& data) {
 
             if (key == "chip_width") {
                 data.designData.chipWidth = value.toInt();
-                Logger::instance().log(QString("   chip_width = %1").arg(data.designData.chipWidth));
+                //Logger::instance().log(QString("   chip_width = %1").arg(data.designData.chipWidth));
             }
             else if (key == "chip_height") {
                 data.designData.chipHeight = value.toInt();
-                Logger::instance().log(QString("   chip_height = %1").arg(data.designData.chipHeight));
+                //Logger::instance().log(QString("   chip_height = %1").arg(data.designData.chipHeight));
             }
             else if (key == "grid_size") {
                 data.designData.gridSize = value.toInt();
-                Logger::instance().log(QString("   grid_size = %1").arg(data.designData.gridSize));
+                //Logger::instance().log(QString("   grid_size = %1").arg(data.designData.gridSize));
             }
             continue;
         }
@@ -275,7 +275,7 @@ bool read(const QString& filename, FileData& data) {
             if (t == "}," || t == "}") {
                 if (blockData.id.isEmpty() || blockData.width == 0 || blockData.height == 0)
                 {
-                    Logger::instance().log("One of the blocks parameters is not specified. " "All data must be provided");
+                    Logger::instance().log("Error: One of the blocks parameters is not specified. " "All data must be provided");
                     return false;
                 }
                 ++blocksCount;
@@ -291,24 +291,24 @@ bool read(const QString& filename, FileData& data) {
                 const QString inner = value.mid(1, value.size() - 2);
 
                 if (inner.trimmed().isEmpty()) {
-                    Logger::instance().log("The block name must not be empty.");
+                    Logger::instance().log("Error: The block name must not be empty.");
                     return false;
                 }
 
                 blockData.id = inner;
-                Logger::instance().log(QString("   id = %1").arg(blockData.id));
+                //Logger::instance().log(QString("   id = %1").arg(blockData.id));
             }
             else if (key == "width") {
                 blockData.width = value.toInt();
-                Logger::instance().log(QString("   width = %1").arg(blockData.width));
+                //Logger::instance().log(QString("   width = %1").arg(blockData.width));
             }
             else if (key == "height") {
                 blockData.height = value.toInt();
-                Logger::instance().log(QString("   height = %1").arg(blockData.height));
+                //Logger::instance().log(QString("   height = %1").arg(blockData.height));
             }
             else if (key == "rotation_allowed") {
                 blockData.rotationAllowed = (value == "true");
-                Logger::instance().log(QString("   rotation_allowed = %1").arg(blockData.rotationAllowed ? "true" : "false"));
+                //Logger::instance().log(QString("   rotation_allowed = %1").arg(blockData.rotationAllowed ? "true" : "false"));
             }
             continue;
         }
@@ -402,7 +402,7 @@ bool read(const QString& filename, FileData& data) {
 
             if (t == "}," || t == "}") {
                 if (netsData.net_id.isEmpty() || netsData.block_ids.isEmpty()) {
-                    Logger::instance().log("One of the nets parameters is not specified. " "All data must be provided");
+                    Logger::instance().log("Error: One of the nets parameters is not specified. " "All data must be provided");
                     return false;
                 }
                 ++netsCount;
@@ -427,12 +427,12 @@ bool read(const QString& filename, FileData& data) {
                 const QString inner = value.mid(1, value.size() - 2);
 
                 if (inner.trimmed().isEmpty()) {
-                    Logger::instance().log("The net name must not be empty.");
+                    Logger::instance().log("Error: The net name must not be empty.");
                     return false;
                 }
 
                 netsData.net_id = inner;
-                Logger::instance().log(QString("   net_id = %1").arg(netsData.net_id));
+                ///Logger::instance().log(QString("   net_id = %1").arg(netsData.net_id));
             }
 
             else if (key == "block_ids") {
@@ -452,7 +452,7 @@ bool read(const QString& filename, FileData& data) {
             if (t == "}" || t == "},") {
                 const QString& ps = data.decoderParamsData.placementStrategy;
                 if (ps != "bottom_left" && ps != "min_hpwl") {
-                    Logger::instance().log("One of the decoder parameters is not specified. " "All data must be provided");
+                    Logger::instance().log("Error: One of the decoder parameters is not specified. " "All data must be provided");
                     return false;
                 }
                 section = Section::Undefined;
@@ -464,12 +464,12 @@ bool read(const QString& filename, FileData& data) {
 
             if (key == "use_b_tree") {
                 data.decoderParamsData.useBTree = (value == "true");
-                Logger::instance().log(QString("   use_b_tree = %1").arg(data.decoderParamsData.useBTree ? "true" : "false"));
+                //Logger::instance().log(QString("   use_b_tree = %1").arg(data.decoderParamsData.useBTree ? "true" : "false"));
             }
             else if (key == "allow_rotation_during_decode") {
                 data.decoderParamsData.allowRotationDuringDecode = (value == "true");
-                Logger::instance().log(QString("   allow_rotation_during_decode = %1")
-                    .arg(data.decoderParamsData.allowRotationDuringDecode ? "true" : "false"));
+                /*Logger::instance().log(QString("   allow_rotation_during_decode = %1")
+                    .arg(data.decoderParamsData.allowRotationDuringDecode ? "true" : "false"));*/
             }
             else if (key == "placement_strategy") {
                 QString parsePlacementStrategy;
@@ -477,7 +477,7 @@ bool read(const QString& filename, FileData& data) {
                     parsePlacementStrategy = value.mid(1, value.size() - 2);
                 }
                 data.decoderParamsData.placementStrategy = parsePlacementStrategy;
-                Logger::instance().log(QString("   placement_strategy = %1").arg(data.decoderParamsData.placementStrategy));
+                //Logger::instance().log(QString("   placement_strategy = %1").arg(data.decoderParamsData.placementStrategy));
             }
             continue;
         }

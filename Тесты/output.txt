@@ -1,12 +1,12 @@
 
 Placement:
    B1 at (0, 0) size 120x80
-   B2 at (200, 0) size 160x80
-   B3 at (0, 80) size 200x100
-   B4 at (360, 0) size 60x60
-   B5 at (200, 80) size 160x120
+   B2 at (0, 80) size 150x90
+   B3 at (0, 170) size 200x100
+   B4 at (0, 270) size 70x70
+   B5 at (0, 340) size 160x120
 
 Quality metrics:
-   total area = 420x200
-   total HPWL = 928.622
-   decoding time = 0.0005602s
+   total area = 200x460
+   total HPWL = 479.545
+   decoding time = 0.0004869s
