@@ -1,0 +1,27 @@
+
+Placement:
+   B1 at (0, 282) size 68x46
+   B2 at (559, 107) size 102x97
+   B3 at (198, 46) size 66x179
+   B4 at (411, 46) size 148x48
+   B5 at (380, 584) size 99x95
+   B6 at (198, 0) size 183x46
+   B7 at (264, 46) size 147x179
+   B8 at (114, 282) size 190x111
+   B9 at (0, 0) size 41x80
+   B10 at (380, 679) size 127x111
+   B11 at (314, 393) size 66x126
+   B12 at (380, 393) size 64x131
+   B13 at (559, 0) size 194x107
+   B14 at (41, 0) size 157x177
+   B15 at (380, 524) size 136x60
+   B16 at (114, 458) size 200x198
+   B17 at (411, 94) size 132x187
+   B18 at (198, 225) size 51x57
+   B19 at (0, 328) size 114x60
+   B20 at (114, 393) size 137x65
+
+Quality metrics:
+   total area = 753x790
+   total HPWL = 7119.12
+   decoding time = 0.0032999s
