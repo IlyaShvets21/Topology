@@ -2,19 +2,12 @@ import random
 import sys
 
 
-# ---------- Генерация блоков ----------
-
 def make_blocks(n, seed=42, min_size=40, max_size=200, rot_prob=0.7):
-    """
-    Генерирует n блоков B1..Bn со случайными размерами.
-    rot_prob — вероятность, что rotation_allowed == true.
-    """
     random.seed(seed)
     blocks = []
     for i in range(1, n + 1):
         w = random.randint(min_size, max_size)
         h = random.randint(min_size, max_size)
-        # Делаем блоки не квадратными, чтобы поворот имел смысл
         if w == h:
             h += random.randint(10, 50)
         blocks.append({
@@ -25,12 +18,8 @@ def make_blocks(n, seed=42, min_size=40, max_size=200, rot_prob=0.7):
         })
     return blocks
 
-
-# ---------- Генерация sequence_pair ----------
-
 def make_sequence_pair(n, seed=42):
-    """Генерирует корректную sequence_pair для n блоков B1..Bn."""
-    random.seed(seed + 1)   # другой seed, чтобы не совпадало с blocks
+    random.seed(seed + 1)  
     ids = [f"B{i}" for i in range(1, n + 1)]
     A = ids.copy()
     B = ids.copy()
@@ -38,16 +27,8 @@ def make_sequence_pair(n, seed=42):
     random.shuffle(B)
     return {"A": A, "B": B}
 
-
-# ---------- Генерация nets ----------
-
 def make_nets(n, seed=42, min_nets=None, max_nets=None,
               min_blocks_per_net=2, max_blocks_per_net=5):
-    """
-    Генерирует список nets. Каждый net связывает от 2 до max_blocks_per_net
-    блоков. Каждая пара блоков внутри net'а трактуется как соединение
-    (clique-модель).
-    """
     random.seed(seed + 2)
 
     if min_nets is None:
@@ -59,8 +40,7 @@ def make_nets(n, seed=42, min_nets=None, max_nets=None,
     ids = [f"B{i}" for i in range(1, n + 1)]
 
     nets = []
-    seen = set()   # чтобы избежать полных дубликатов
-
+    seen = set()  
     for k in range(1, num_nets + 1):
         k_max = min(max_blocks_per_net, n)
         k_min = min(min_blocks_per_net, k_max)
@@ -78,9 +58,6 @@ def make_nets(n, seed=42, min_nets=None, max_nets=None,
         })
 
     return nets
-
-
-# ---------- Валидация ----------
 
 def validate_sequence_pair(sp, n):
     ids = {f"B{i}" for i in range(1, n + 1)}
@@ -125,9 +102,6 @@ def validate_nets(nets, n):
         return False
     print(f"OK: {len(nets)} nets корректны", file=sys.stderr)
     return True
-
-
-# ---------- Форматирование ----------
 
 def format_sequence_pair(sp, per_line=10, indent=2):
     pad = " " * indent
@@ -180,10 +154,6 @@ def format_nets(nets, indent=2):
 
 
 def format_full_json(blocks, sp, nets, design, decoder_params):
-    """
-    Собирает полный JSON вручную, чтобы контролировать форматирование
-    и порядок секций (совместимо с read в C++).
-    """
     lines = []
     lines.append("{")
     lines.append('  "design": {')
@@ -207,14 +177,7 @@ def format_full_json(blocks, sp, nets, design, decoder_params):
     lines.append("}")
     return "\n".join(lines)
 
-
-# ---------- Основной сценарий ----------
-
 def generate(n=50, seed=42, strategy="min_hpwl"):
-    """
-    Генерирует полный JSON и возвращает его строкой.
-    Печатает JSON в stdout, диагностику — в stderr.
-    """
     blocks = make_blocks(n, seed=seed)
     sp     = make_sequence_pair(n, seed=seed)
     nets   = make_nets(n, seed=seed)
@@ -224,7 +187,6 @@ def generate(n=50, seed=42, strategy="min_hpwl"):
     if not validate_nets(nets, n):
         sys.exit(1)
 
-    # Параметры чипа — с запасом, чтобы блоки точно влезли
     total_area = sum(b["width"] * b["height"] for b in blocks)
     side = int((total_area ** 0.5) * 2)
 

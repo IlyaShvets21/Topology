@@ -7,9 +7,38 @@
 
 #include <QVector>
 #include <QString>
+#include <QHash>
 
 #pragma once
 
+/************************************************************************************
+ *  @brief  Структура данных для графов, построенных из sequence_pair
+ ***********************************************************************************/
+struct SequencePairData {
+	QVector<QVector<int>> H;
+	QVector<QVector<int>> V;
+};
+
+/************************************************************************************
+ *  @brief  Структура данных для индексов соединений
+ ***********************************************************************************/
+struct IndexedNet {
+	QVector<int>	      block_ids;
+};
+
+/************************************************************************************
+ *  @brief  Структура данных для первоначального размещения
+ ***********************************************************************************/
+struct PlacementContext {
+	SequencePairData      seq_pair;
+	QHash<QString, int>   blockIndex;
+	QVector<IndexedNet>   nets;
+	int                   n = 0;
+};
+
+/************************************************************************************
+ *  @brief  Структура данных для конечного размещения
+ ***********************************************************************************/
 struct PlacementImprovements {
 	QVector<int> x, y;
 	int totalWidth  = 0;
@@ -40,5 +69,4 @@ struct PlacementResult {
 };
 
 PlacementResult place(const FileData& data);
-PlacementImprovements improve(const FileData& data, QVector<int>& w, QVector<int>& h);
 

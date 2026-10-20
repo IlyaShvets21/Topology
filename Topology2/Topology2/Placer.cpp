@@ -2,24 +2,104 @@
 #include <unordered_map>
 #include <iostream>
 
-#include <QHash>
+/************************************************************************************
+ *  @brief  Функция для построения sequence_pair 
+ ***********************************************************************************/
+SequencePairData buildSequencePair(const FileData& data) {
+	const int n = data.blocks.size();
 
-static std::unordered_map<QString, int> buildIndex(const QVector<BlockData>& blocks) {
-	std::unordered_map<QString, int> idx;
-	for (int i = 0; i < static_cast<int>(blocks.size()); ++i) {
-		idx[blocks[i].id] = i;
+	const QHash<QString, int> posA = [&] {
+		QHash<QString, int> m;
+		m.reserve(data.sequencePairData.A.size() * 2);
+		for (int i = 0; i < data.sequencePairData.A.size(); ++i) {
+			m[data.sequencePairData.A[i]] = i;
+
+		}
+		return m;
+		}();
+	const QHash<QString, int> posB = [&] {
+		QHash<QString, int> m;
+		m.reserve(data.sequencePairData.B.size() * 2);
+		for (int i = 0; i < data.sequencePairData.B.size(); ++i) {
+			m[data.sequencePairData.B[i]] = i;
+		}
+		return m;
+		}();
+
+	QVector<int> posAIdx(n), posBIdx(n);
+	for (int i = 0; i < n; ++i) {
+		posAIdx[i] = posA.value(data.blocks[i].id);
+		posBIdx[i] = posB.value(data.blocks[i].id);
 	}
-	return idx;
+
+	SequencePairData spd;
+	spd.H.resize(n);
+	spd.V.resize(n);
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if (i == j) continue;
+			const bool aBefore = posAIdx[i] < posAIdx[j];
+			const bool bBefore = posBIdx[i] < posBIdx[j];
+			if (aBefore && bBefore) {
+				spd.H[i].push_back(j);
+			}
+			else if (aBefore && !bBefore) {
+				spd.V[i].push_back(j);
+			}
+		}
+	}
+	return spd;
 }
 
-static std::unordered_map<QString, int>  buildOrder(const QVector<QString>& order) {
-	std::unordered_map<QString, int> pos;
-	for (int i = 0; i < static_cast<int>(order.size()); ++i) {
-		pos[order[i]] = i;
+/************************************************************************************
+ *  @brief  Функция для построения хэша для блоков
+ ***********************************************************************************/
+QHash<QString, int> buildBlockIndex(const QVector<BlockData>& blocks) {
+	QHash<QString, int> index;
+	index.reserve(blocks.size() * 2);
+	for (int i = 0; i < blocks.size(); ++i) {
+		index[blocks[i].id] = i;
 	}
-	return pos;
+	return index;
 }
 
+/************************************************************************************
+ *  @brief  Функция для построения вектора для соединений
+ ***********************************************************************************/
+QVector<IndexedNet> buildIndexNets(const FileData& data, const QHash<QString, int>& index) {
+	QVector<IndexedNet> result;
+	result.reserve(data.nets.size());
+	for (const NetsData& net : data.nets) {
+		IndexedNet ni;
+		ni.block_ids.reserve(net.block_ids.size());
+		for (const QString& id : net.block_ids) {
+			const auto it = index.find(id);
+			if (it != index.end()) {
+				ni.block_ids.push_back(it.value());
+			}		
+		}
+		result.push_back(ni);
+	}
+	return result;
+}
+
+/************************************************************************************
+ *  @brief  Функция для построения начального размещения
+ ***********************************************************************************/
+PlacementContext buildContext(const FileData& data) {
+	PlacementContext ctx;
+	ctx.n = data.blocks.size();
+	ctx.seq_pair = buildSequencePair(data);
+	ctx.blockIndex = buildBlockIndex(data.blocks);
+	ctx.nets = buildIndexNets(data, ctx.blockIndex);
+	return ctx;
+}
+
+/************************************************************************************
+ *  @brief  Функция для построения самого длинного пути из блоком. Предназначен для 
+ *			того, чтобы при размещении блоки не налезли друг на друга
+ ***********************************************************************************/
 QVector<int> longestPath(int n, const QVector<QVector<int>>& edges, const QVector<int>& weight) {
 	QVector<int> indeg(n, 0);
 	for (int u = 0; u < n; ++u) {
@@ -47,77 +127,41 @@ QVector<int> longestPath(int n, const QVector<QVector<int>>& edges, const QVecto
 /************************************************************************************
  *  @brief  Функция минимизации суммарной HPWL
  ***********************************************************************************/
-static double scoreHPWL(const FileData& data, const QVector<int>& x, const QVector<int>& y,
-						  const QVector<int>& w, const QVector<int>& h) {
-	QHash<QString, int> index;
-	index.reserve(data.blocks.size() * 2);
-	for (int i = 0; i < data.blocks.size(); ++i) {
-		index[data.blocks[i].id] = i;
-	}
-
+static double scoreHPWL(const PlacementContext& ctx, const QVector<int>& x, const QVector<int>& y,
+	const QVector<int>& w, const QVector<int>& h) {
 	double total = 0.0;
 
-	for (const NetsData& net : data.nets) {
+	for (const IndexedNet& net : ctx.nets) {
 		const int k = net.block_ids.size();
 		if (k < 2) continue;
 
 		QVector<double> cx(k), cy(k);
-		int valid = 0;
-		for (int j = 0; j < k; ++j) {
-			const auto it = index.find(net.block_ids[j]);
-			if (it == index.end()) continue;
-			const int i = it.value();
-			cx[valid] = x[i] + w[i] * 0.5;
-			cy[valid] = y[i] + h[i] * 0.5;
-			++valid;
+		for (int i = 0; i < k; ++i) {
+			const int j = net.block_ids[i];
+			cx[i] = x[j] + w[j] * 0.5;
+			cy[i] = y[j] + h[j] * 0.5;
 		}
 
-		for (int a = 0; a < valid; ++a) {
-			for (int b = a + 1; b < valid; ++b) {
+		for (int a = 0; a < k; ++a) {
+			for (int b = a + 1; b < k; ++b) {
 				const double dx = cx[a] - cx[b];
 				const double dy = cy[a] - cy[b];
 				total += std::sqrt(dx * dx + dy * dy);
 			}
 		}
 	}
-
 	return total;
 }
 
 /************************************************************************************
  *  @brief  Функция минимизации плотности упаковки
  ***********************************************************************************/
-PlacementImprovements improve(const FileData& data, QVector<int>& w, QVector<int>& h) {
-	const auto& blocks = data.blocks;
-	const int n = static_cast<int>(blocks.size());
-
-	const auto idx = buildIndex(blocks);
-	const auto posA = buildOrder(data.sequencePairData.A);
-	const auto posB = buildOrder(data.sequencePairData.B);
-
-	QVector<QVector<int>> H(n), V(n);
-
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			if (i == j) continue;
-			const QString& X = blocks[i].id;
-			const QString& Y = blocks[j].id;
-
-			const bool aBefore = posA.at(X) < posA.at(Y);
-			const bool bBefore = posB.at(X) < posB.at(Y);
-
-			if (aBefore && bBefore) {
-				H[i].push_back(j);
-			}
-			else if (aBefore && !bBefore) {
-				V[i].push_back(j);
-			}
-		}
-	}
+PlacementImprovements improve(const PlacementContext& ctx, QVector<int>& w, QVector<int>& h) {
+	const int n = ctx.n;
 
 	PlacementImprovements imp;
-	imp.x = longestPath(n, H, w);
-	imp.y = longestPath(n, V, h);
+	imp.x = longestPath(n, ctx.seq_pair.H, w);
+	imp.y = longestPath(n, ctx.seq_pair.V, h);
 
 	int maxX = 0, maxY = 0;
 	for (int i = 0; i < n; ++i) {
@@ -127,7 +171,7 @@ PlacementImprovements improve(const FileData& data, QVector<int>& w, QVector<int
 	imp.totalWidth = maxX;
 	imp.totalHeight = maxY;
 	imp.area = 1LL * maxX * maxY;
-	imp.hpwl = scoreHPWL(data, imp.x, imp.y, w, h);
+	imp.hpwl = scoreHPWL(ctx, imp.x, imp.y, w, h);
 	return imp;
 }
 
@@ -136,7 +180,18 @@ PlacementImprovements improve(const FileData& data, QVector<int>& w, QVector<int
  ***********************************************************************************/
 PlacementResult place(const FileData& data) {
 	const auto& blocks = data.blocks;
-	const int n = static_cast<int>(blocks.size());
+	const int n = blocks.size();
+
+	if (n == 0) {
+		PlacementResult result;
+		result.minX = result.minY = result.maxX = result.maxY = 0;
+		result.totalWidth = result.totalHeight = 0;
+		result.area = 0;
+		result.hpwl = 0.0;
+		return result;
+	}
+
+	const PlacementContext ctx = buildContext(data);
 
 	QVector<int> w(n), h(n);
 	QVector<bool> rotate(n, false);
@@ -146,7 +201,7 @@ PlacementResult place(const FileData& data) {
 		h[i] = blocks[i].height;
 	}
 
-	PlacementImprovements best = improve(data, w, h);
+	PlacementImprovements best = improve(ctx, w, h);
 
 	if (data.decoderParamsData.allowRotationDuringDecode == true) {
 		if (data.decoderParamsData.placementStrategy == "bottom_left") {
@@ -158,7 +213,7 @@ PlacementResult place(const FileData& data) {
 					if (!blocks[i].rotationAllowed) continue;
 
 					std::swap(w[i], h[i]);
-					PlacementImprovements candidate = improve(data, w, h);
+					PlacementImprovements candidate = improve(ctx, w, h);
 
 					if (candidate.area < best.area) {
 						best = candidate;
@@ -180,13 +235,13 @@ PlacementResult place(const FileData& data) {
 					if (!blocks[i].rotationAllowed) continue;
 
 					std::swap(w[i], h[i]);
-					PlacementImprovements candidate = improve(data, w, h);
+					PlacementImprovements candidate = improve(ctx, w, h);
 
 					if (candidate.hpwl < best.hpwl) {
 						best = candidate;
 						rotate[i] = !rotate[i];
 						improved = true;
-						
+
 					}
 					else {
 						std::swap(w[i], h[i]);
