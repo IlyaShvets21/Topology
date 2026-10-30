@@ -21,6 +21,24 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Header Files\Decoders">
+      <UniqueIdentifier>{3d5fd0d5-c81c-4c35-9e6d-bac26615aa37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Viewers">
+      <UniqueIdentifier>{ac29d352-0dfc-452f-81da-d54f89cd590d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Work">
+      <UniqueIdentifier>{5e456c21-e5dd-4839-94ac-c3bd1c49965b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Decoder">
+      <UniqueIdentifier>{ccda7324-23e9-498f-9ea8-cbfda68ae518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Viewer">
+      <UniqueIdentifier>{c86e110e-1123-49d1-ae83-b48fc3d6e2f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Work">
+      <UniqueIdentifier>{9d16c07b-664d-4c22-af28-cc59bb46d5f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -29,31 +47,46 @@
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Writer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Reader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Placer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Viewer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="BTreeDecoder.cpp">
+      <Filter>Source Files\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="SequencePairDecoder.cpp">
+      <Filter>Source Files\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewPlacement.cpp">
+      <Filter>Source Files\Viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="Placer.cpp">
+      <Filter>Source Files\Work</Filter>
+    </ClCompile>
+    <ClCompile Include="Reader.cpp">
+      <Filter>Source Files\Work</Filter>
+    </ClCompile>
+    <ClCompile Include="Writer.cpp">
+      <Filter>Source Files\Work</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewBTree.cpp">
+      <Filter>Source Files\Viewer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Writer.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="BTreeDecoder.hpp">
+      <Filter>Header Files\Decoders</Filter>
     </ClInclude>
-    <ClInclude Include="Reader.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="SequencePairDecoder.hpp">
+      <Filter>Header Files\Decoders</Filter>
     </ClInclude>
     <ClInclude Include="Placer.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Work</Filter>
+    </ClInclude>
+    <ClInclude Include="Reader.hpp">
+      <Filter>Header Files\Work</Filter>
+    </ClInclude>
+    <ClInclude Include="Writer.hpp">
+      <Filter>Header Files\Work</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -63,8 +96,11 @@
     <QtMoc Include="MainWindow.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Viewer.hpp">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="ViewPlacement.hpp">
+      <Filter>Header Files\Viewers</Filter>
+    </QtMoc>
+    <QtMoc Include="ViewBTree.hpp">
+      <Filter>Header Files\Viewers</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

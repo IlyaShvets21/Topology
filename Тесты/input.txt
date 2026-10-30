@@ -52,7 +52,7 @@
     }
   ],
   "decoder_params": {
-    "use_b_tree": false,
+    "use_b_tree": true,
     "allow_rotation_during_decode": true,
     "placement_strategy": "min_hpwl"
   }

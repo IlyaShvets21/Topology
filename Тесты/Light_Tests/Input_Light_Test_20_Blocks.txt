@@ -1,7 +1,7 @@
 {
   "design": {
-    "chip_width": 1040,
-    "chip_height": 1040,
+    "chip_width": 2040,
+    "chip_height": 2040,
     "grid_size": 10,
     "rotation_allowed": true
   },
@@ -168,8 +168,8 @@
     }
   ],
   "decoder_params": {
-    "use_b_tree": false,
+    "use_b_tree": true,
     "allow_rotation_during_decode": true,
-    "placement_strategy": "min_hpwl"
+    "placement_strategy": "bottom_left"
   }
 }

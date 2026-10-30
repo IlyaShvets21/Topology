@@ -1,56 +1,7 @@
 #include "Placer.hpp"
+#include "SequencePairDecoder.hpp"
 #include <unordered_map>
 #include <iostream>
-
-/************************************************************************************
- *  @brief  Функция для построения sequence_pair 
- ***********************************************************************************/
-SequencePairData buildSequencePair(const FileData& data) {
-	const int n = data.blocks.size();
-
-	const QHash<QString, int> posA = [&] {
-		QHash<QString, int> m;
-		m.reserve(data.sequencePairData.A.size() * 2);
-		for (int i = 0; i < data.sequencePairData.A.size(); ++i) {
-			m[data.sequencePairData.A[i]] = i;
-
-		}
-		return m;
-		}();
-	const QHash<QString, int> posB = [&] {
-		QHash<QString, int> m;
-		m.reserve(data.sequencePairData.B.size() * 2);
-		for (int i = 0; i < data.sequencePairData.B.size(); ++i) {
-			m[data.sequencePairData.B[i]] = i;
-		}
-		return m;
-		}();
-
-	QVector<int> posAIdx(n), posBIdx(n);
-	for (int i = 0; i < n; ++i) {
-		posAIdx[i] = posA.value(data.blocks[i].id);
-		posBIdx[i] = posB.value(data.blocks[i].id);
-	}
-
-	SequencePairData spd;
-	spd.H.resize(n);
-	spd.V.resize(n);
-
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			if (i == j) continue;
-			const bool aBefore = posAIdx[i] < posAIdx[j];
-			const bool bBefore = posBIdx[i] < posBIdx[j];
-			if (aBefore && bBefore) {
-				spd.H[i].push_back(j);
-			}
-			else if (aBefore && !bBefore) {
-				spd.V[i].push_back(j);
-			}
-		}
-	}
-	return spd;
-}
 
 /************************************************************************************
  *  @brief  Функция для построения хэша для блоков
@@ -90,7 +41,7 @@ QVector<IndexedNet> buildIndexNets(const FileData& data, const QHash<QString, in
 PlacementContext buildContext(const FileData& data) {
 	PlacementContext ctx;
 	ctx.n = data.blocks.size();
-	ctx.seq_pair = buildSequencePair(data);
+	ctx.seq_pair = SequencePairDecoder::buildSequencePair(data);
 	ctx.blockIndex = buildBlockIndex(data.blocks);
 	ctx.nets = buildIndexNets(data, ctx.blockIndex);
 	return ctx;
@@ -156,12 +107,20 @@ static double scoreHPWL(const PlacementContext& ctx, const QVector<int>& x, cons
 /************************************************************************************
  *  @brief  Функция минимизации плотности упаковки
  ***********************************************************************************/
-PlacementImprovements improve(const PlacementContext& ctx, QVector<int>& w, QVector<int>& h) {
+PlacementImprovements improve(const PlacementContext& ctx, QVector<int>& w, QVector<int>& h,
+							  bool useBTree, const BTreeData& tree) {
 	const int n = ctx.n;
 
 	PlacementImprovements imp;
-	imp.x = longestPath(n, ctx.seq_pair.H, w);
-	imp.y = longestPath(n, ctx.seq_pair.V, h);
+
+	if (useBTree) {
+		BTreeDecoder::decodeBTree(tree, w, h, imp.x, imp.y);
+		BTreeDecoder::resolveOverlaps(imp.x, imp.y, w, h);
+	}
+	else {
+		imp.x = longestPath(n, ctx.seq_pair.H, w);
+		imp.y = longestPath(n, ctx.seq_pair.V, h);
+	}
 
 	int maxX = 0, maxY = 0;
 	for (int i = 0; i < n; ++i) {
@@ -192,6 +151,12 @@ PlacementResult place(const FileData& data) {
 	}
 
 	const PlacementContext ctx = buildContext(data);
+	const bool useBTree = data.decoderParamsData.useBTree;
+
+	BTreeData tree;
+	if (useBTree) {
+		tree = BTreeDecoder::buildBTree(data, ctx.seq_pair, ctx.blockIndex);
+	}
 
 	QVector<int> w(n), h(n);
 	QVector<bool> rotate(n, false);
@@ -201,7 +166,7 @@ PlacementResult place(const FileData& data) {
 		h[i] = blocks[i].height;
 	}
 
-	PlacementImprovements best = improve(ctx, w, h);
+	PlacementImprovements best = improve(ctx, w, h, useBTree, tree);
 
 	if (data.decoderParamsData.allowRotationDuringDecode == true) {
 		if (data.decoderParamsData.placementStrategy == "bottom_left") {
@@ -213,7 +178,7 @@ PlacementResult place(const FileData& data) {
 					if (!blocks[i].rotationAllowed) continue;
 
 					std::swap(w[i], h[i]);
-					PlacementImprovements candidate = improve(ctx, w, h);
+					PlacementImprovements candidate = improve(ctx, w, h, useBTree, tree);
 
 					if (candidate.area < best.area) {
 						best = candidate;
@@ -235,7 +200,7 @@ PlacementResult place(const FileData& data) {
 					if (!blocks[i].rotationAllowed) continue;
 
 					std::swap(w[i], h[i]);
-					PlacementImprovements candidate = improve(ctx, w, h);
+					PlacementImprovements candidate = improve(ctx, w, h, useBTree, tree);
 
 					if (candidate.hpwl < best.hpwl) {
 						best = candidate;
@@ -285,6 +250,10 @@ PlacementResult place(const FileData& data) {
 
 	result.area = 1LL * result.totalWidth * result.totalHeight;
 	result.hpwl = best.hpwl;
+
+	if (useBTree) {
+		result.bTree = tree;
+	}
 
 	return result;
 }

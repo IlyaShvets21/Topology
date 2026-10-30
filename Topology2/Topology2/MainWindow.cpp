@@ -15,22 +15,25 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	auto* central = new QWidget(this);
 	setCentralWidget(central);
 
-	runButton = new QPushButton(tr("Run"), central);
-	clearButton = new QPushButton(tr("Clear"), central);
-	browseButton = new QPushButton(tr("Browse"), central);
-	viewButton = new QPushButton(tr("View"), central);
+	runButton		= new QPushButton(tr("Run"), central);
+	clearButton		= new QPushButton(tr("Clear"), central);
+	browseButton	= new QPushButton(tr("Browse"), central);
+	viewButton		= new QPushButton(tr("View"), central);
+	bTreeButton		= new QPushButton(tr("B-Tree"), central);
 
 	QCheckBox* showNetsCheck = new QCheckBox(tr("Show nets"), central);
 	showNetsCheck->setChecked(true);
 
 	runButton->setEnabled(false);
 	viewButton->setEnabled(false);
+	bTreeButton->setEnabled(false);
 
 	auto* buttonLayout = new QHBoxLayout;
 	buttonLayout->addWidget(runButton);
 	buttonLayout->addWidget(clearButton);
 	buttonLayout->addWidget(browseButton);
 	buttonLayout->addWidget(viewButton);
+	buttonLayout->addWidget(bTreeButton);
 	buttonLayout->addSpacing(20);
 	buttonLayout->addWidget(showNetsCheck);
 	buttonLayout->addStretch();
@@ -48,7 +51,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	mono.setPointSize(10);
 	logView->setFont(mono);
 
-	viewer = new Viewer(central);
+	viewer = new ViewPlacement(central);
 
 	auto* topLayout = new QVBoxLayout;
 	topLayout->addLayout(buttonLayout);
@@ -74,11 +77,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	mainLayout->addWidget(splitter, 1);
 	mainLayout->addWidget(statusLabel);
 
-	connect(showNetsCheck, &QCheckBox::toggled, viewer, &Viewer::setShowNets);
+	connect(showNetsCheck, &QCheckBox::toggled, viewer, &ViewPlacement::setShowNets);
 	connect(runButton, &QPushButton::clicked, this, &MainWindow::onRunClicked);
 	connect(clearButton, &QPushButton::clicked, this, &MainWindow::onClearClicked);
 	connect(browseButton, &QPushButton::clicked, this, &MainWindow::onBrowseClicked);
 	connect(viewButton, &QPushButton::clicked, this, &MainWindow::onViewClicked);
+	connect(bTreeButton, &QPushButton::clicked, this, &MainWindow::onShowBTree);
 
 	connect(&Logger::instance(), &Logger::messageLogged, this,
 		&MainWindow::appendLog, Qt::QueuedConnection);
@@ -87,6 +91,26 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	setWindowTitle(tr("Sequence Pair Interface"));
 
 	appendLog(tr("Application started"));
+}
+
+void MainWindow::onShowBTree() {
+	if (!hasResult) {
+		Logger::instance().log(tr("No placement available. Run first."));
+		return;
+	}
+
+	if (!lastData.decoderParamsData.useBTree) {
+		QMessageBox::information(this, tr("B-tree"), tr("B-tree was not built (use_b_tree = false)."));
+		return;
+	}
+
+	if (lastResult.bTree.nodes.isEmpty() || lastResult.bTree.root < 0) {
+		QMessageBox::warning(this, tr("B-tree"), tr("b-tree empty or not built."));
+		return;
+	}
+
+	ViewBTreeDialog dlg(lastResult.bTree, this);
+	dlg.exec();
 }
 
 void MainWindow::onRunClicked() {
@@ -107,6 +131,7 @@ void MainWindow::onRunClicked() {
 
 	runButton->setEnabled(false);
 	viewButton->setEnabled(false);
+	bTreeButton->setEnabled(false);
 	statusLabel->setText(tr("Running..."));
 
 	FileData data;
@@ -133,6 +158,7 @@ void MainWindow::onRunClicked() {
 	lastResult = result;
 	hasResult = true;
 	viewButton->setEnabled(true);
+	bTreeButton->setEnabled(true);
 
 	statusLabel->setText(tr("Done"));
 	runButton->setEnabled(true);
@@ -154,6 +180,7 @@ void MainWindow::onBrowseClicked() {
 	fileLabel->setText(tr("File: %1").arg(QFileInfo(path).fileName()));
 	runButton->setEnabled(true);
 	viewButton->setEnabled(false);
+	bTreeButton->setEnabled(false);
 	hasResult = false;
 	viewer->clear();
 	statusLabel->setText(tr("File selected"));

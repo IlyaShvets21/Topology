@@ -9,7 +9,8 @@
 #include "Reader.hpp"
 #include "Placer.hpp"
 #include "Writer.hpp"
-#include "Viewer.hpp"
+#include "ViewPlacement.hpp"
+#include "ViewBTree.hpp"
 
 #include <QMainWindow>
 #include <QPlainTextEdit>
@@ -27,18 +28,20 @@ private slots:
 	void onClearClicked		();
 	void onBrowseClicked	();
 	void onViewClicked		();
+	void onShowBTree		();
 	void appendLog			(const QString& message);
 
 private:
 	QPushButton		*runButton		= nullptr;
 	QPushButton		*clearButton	= nullptr,
 					*browseButton	= nullptr,
+					*bTreeButton	= nullptr,
 					*viewButton 	= nullptr;
 	QPlainTextEdit  *logView		= nullptr;
 	QLabel			*statusLabel	= nullptr,
 					*fileLabel		= nullptr;
 
-	Viewer			*viewer			= nullptr;
+	ViewPlacement	*viewer			= nullptr;
 	QString			currentPath;
 
 	bool			hasResult		= false;

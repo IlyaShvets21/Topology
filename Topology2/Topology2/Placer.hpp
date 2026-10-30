@@ -3,21 +3,15 @@
  *  @brief  Файл содержит необходимые данные, для размещения блоков по информации,
  *			прочитанной из файла входных данных
  ************************************************************************************/
+#pragma once
+
 #include "Reader.hpp"
+#include "SequencePairDecoder.hpp"
+#include "BTreeDecoder.hpp"
 
 #include <QVector>
 #include <QString>
 #include <QHash>
-
-#pragma once
-
-/************************************************************************************
- *  @brief  Структура данных для графов, построенных из sequence_pair
- ***********************************************************************************/
-struct SequencePairData {
-	QVector<QVector<int>> H;
-	QVector<QVector<int>> V;
-};
 
 /************************************************************************************
  *  @brief  Структура данных для индексов соединений
@@ -33,18 +27,18 @@ struct PlacementContext {
 	SequencePairData      seq_pair;
 	QHash<QString, int>   blockIndex;
 	QVector<IndexedNet>   nets;
-	int                   n = 0;
+	int                   n				= 0;
 };
 
 /************************************************************************************
  *  @brief  Структура данных для конечного размещения
  ***********************************************************************************/
 struct PlacementImprovements {
-	QVector<int> x, y;
-	int totalWidth  = 0;
-	int totalHeight = 0;
-	long long area  = 0;
-	double hpwl		= 0.0;
+	QVector<int>		  x, y;
+	int					  totalWidth	= 0,
+						  totalHeight	= 0;
+	long long			  area			= 0;
+	double				  hpwl			= 0.0;
 };
 
 /************************************************************************************
@@ -52,20 +46,26 @@ struct PlacementImprovements {
  ***********************************************************************************/
 struct PlacementResult {
 	struct PlacedBlock {
-		QString id;
-		int x = 0, y = 0;
-		int width = 0, height = 0;
-		bool rotate = false;
+		QString			  id;
+		int				  x				= 0, 
+						  y				= 0;
+		int				  width			= 0, 
+						  height		= 0;
+		bool			  rotate		= false;
 	};
 
-	QVector<PlacedBlock> blocks;
+	QVector<PlacedBlock>  blocks;
 
-	int minX = 0, minY = 0;
-	int maxX = 0, maxY = 0;
-	int totalWidth   = 0, 
-		totalHeight  = 0;
-	long long area   = 0;
-	double hpwl	     = 0.0;
+	int					  minX			= 0, 
+						  minY			= 0;
+	int					  maxX			= 0, 
+						  maxY			= 0;
+	int					  totalWidth    = 0, 
+						  totalHeight   = 0;
+	long long			  area			= 0;
+	double				  hpwl	        = 0.0;
+
+	BTreeData			  bTree;
 };
 
 PlacementResult place(const FileData& data);

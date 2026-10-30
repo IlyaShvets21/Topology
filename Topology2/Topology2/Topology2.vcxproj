@@ -101,20 +101,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BTreeDecoder.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Placer.cpp" />
     <ClCompile Include="Reader.cpp" />
-    <ClCompile Include="Viewer.cpp" />
+    <ClCompile Include="SequencePairDecoder.cpp" />
+    <ClCompile Include="ViewBTree.cpp" />
+    <ClCompile Include="ViewPlacement.cpp" />
     <ClCompile Include="Writer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Logger.hpp" />
     <QtMoc Include="MainWindow.hpp" />
+    <ClInclude Include="BTreeDecoder.hpp" />
     <ClInclude Include="Placer.hpp" />
     <ClInclude Include="Reader.hpp" />
-    <QtMoc Include="Viewer.hpp" />
+    <QtMoc Include="ViewPlacement.hpp" />
+    <ClInclude Include="SequencePairDecoder.hpp" />
+    <QtMoc Include="ViewBTree.hpp" />
     <ClInclude Include="Writer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
