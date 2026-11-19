@@ -71,6 +71,9 @@
     <ClCompile Include="ViewBTree.cpp">
       <Filter>Source Files\Viewer</Filter>
     </ClCompile>
+    <ClCompile Include="Validator.cpp">
+      <Filter>Source Files\Work</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BTreeDecoder.hpp">
@@ -86,6 +89,9 @@
       <Filter>Header Files\Work</Filter>
     </ClInclude>
     <ClInclude Include="Writer.hpp">
+      <Filter>Header Files\Work</Filter>
+    </ClInclude>
+    <ClInclude Include="Validator.hpp">
       <Filter>Header Files\Work</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,9 @@
 #include <QTextStream>
 #include <QFile>
 
+#include <windows.h>
+#include <psapi.h>
+
 /************************************************************************************
  *  @brief  Функция предназначена для вывода информации о размещении в log и в  
  *			выходной файл
@@ -20,17 +23,29 @@ bool write(const QString& filename, const PlacementResult& result, const FileDat
 		return false;
 	}
 
+	/*if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+		out
+	}*/
+
 	QTextStream out(&file);
 
 	out << "\nPlacement:\n";
 	for (const auto& b : result.blocks) {
 		out << "   " << b.id << " at (" << b.x << ", " << b.y << ")"
-			<< " size " << b.width << "x" << b.height << "\n";
+			<< " size " << b.width << "x" << b.height << " rotate " << (b.rotate ? "yes" : "no") << "\n";
 	}
+
+	PROCESS_MEMORY_COUNTERS pmc = {};
 
 	out << "\nQuality metrics:\n";
 	out << "   total area = " << result.totalWidth << "x" << result.totalHeight << "\n";
 	out << "   total HPWL = " << result.hpwl << "\n";
+	if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+		out << "   consumed memory = " << pmc.WorkingSetSize / 1024 << " KiB\n";
+	}
+	else {
+		out << "   consumed memory = unknown\n";
+	}
 	out << "   decoding time = " << elasped.count() << "s\n";
 
 	Logger::instance().log("Placement:");
@@ -42,6 +57,12 @@ bool write(const QString& filename, const PlacementResult& result, const FileDat
 	Logger::instance().log("Quality metrics:");
 	Logger::instance().log(QString("   total area = %1x%2").arg(result.totalWidth).arg(result.totalHeight));
 	Logger::instance().log(QString("   total HPWL = %1").arg(result.hpwl));
+	if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+		Logger::instance().log(QString("   consumed memory = %1 KiB").arg(pmc.WorkingSetSize / 1024));
+	}
+	else {
+		Logger::instance().log("   consumed memory = unknown");
+	}
 	Logger::instance().log(QString("   decoding time = %1s").arg(elasped.count()));
 
 	Logger::instance().log("The output file has been successfully created");

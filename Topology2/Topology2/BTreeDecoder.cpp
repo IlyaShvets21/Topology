@@ -1,9 +1,6 @@
 #include "BTreeDecoder.hpp"
 
-/************************************************************************************
- *  @brief  Функция построения B-tree из sequence_pair
- ***********************************************************************************/
-BTreeData BTreeDecoder::buildBTree(const FileData& data, const SequencePairData& sequence_pair, const QHash<QString, int>& blockIndex) {
+BTreeData BTreeDecoder::buildBTree(const FileData& data, const SequencePairData& sequence_pair) {
 	const int n = data.blocks.size();
 	BTreeData tree;
 	tree.nodes.resize(n);
@@ -74,9 +71,6 @@ BTreeData BTreeDecoder::buildBTree(const FileData& data, const SequencePairData&
 	return tree;
 }
 
-/************************************************************************************
- *  @brief  Функция декодирования B-Tree в координаты
- ***********************************************************************************/
 void BTreeDecoder::decodeBTree(const BTreeData& tree, const QVector<int>& w, const QVector<int>& h,
 				 QVector<int>& x, QVector<int>& y) {
 	const int n = tree.nodes.size();
@@ -95,6 +89,113 @@ void BTreeDecoder::decodeBTree(const BTreeData& tree, const QVector<int>& w, con
 		dfs(tree.nodes[u].right, px, py + hu);
 		};
 	dfs(tree.root, 0, 0);
+}
+
+BTreeData BTreeDecoder::buildBTreeFromLayout(const FileData& data, const QVector<int>& x,
+    const QVector<int>& y, const QVector<int>& w, const QVector<int>& h, const QVector<bool>& rotated) {
+
+    const int n = data.blocks.size();
+    BTreeData tree;
+    tree.nodes.resize(n);
+    tree.root = -1;
+
+    if (n == 0) return tree;
+
+    for (int i = 0; i < n; ++i) {
+        BTreeNode& node = tree.nodes[i];
+        node.id = data.blocks[i].id;
+        node.width = w[i];
+        node.height = h[i];
+        node.rotate = rotated[i];
+        node.x = x[i];
+        node.y = y[i];
+        node.left = -1;
+        node.right = -1;
+    }
+
+    int root = 0;
+    for (int i = 1; i < n; ++i) {
+        if (x[i] < x[root] || (x[i] == x[root] && y[i] < y[root])) {
+            root = i;
+        }
+    }
+    tree.root = root;
+
+    QVector<bool> hasParent(n, false);
+    hasParent[root] = true;   
+
+    for (int u = 0; u < n; ++u) {
+        int bestV = -1;
+        int bestX = std::numeric_limits<int>::max();
+        const int uRight = x[u] + w[u];
+        const int uTop = y[u] + h[u];
+
+        for (int v = 0; v < n; ++v) {
+            if (v == u) continue;
+            if (hasParent[v]) continue;   
+
+            if (x[v] < uRight) continue;
+
+            if (y[v] >= uTop) continue;
+            if (y[u] >= y[v] + h[v]) continue;
+
+            if (x[v] < bestX) {
+                bestX = x[v];
+                bestV = v;
+            }
+        }
+
+        if (bestV >= 0) {
+            tree.nodes[u].left = bestV;
+            hasParent[bestV] = true;
+        }
+    }
+
+    for (int u = 0; u < n; ++u) {
+        if (tree.nodes[u].right >= 0) continue;
+
+        int bestV = -1;
+        int bestY = std::numeric_limits<int>::max();
+        const int uRight = x[u] + w[u];
+        const int uTop = y[u] + h[u];
+
+        for (int v = 0; v < n; ++v) {
+            if (v == u) continue;
+            if (hasParent[v]) continue;  
+
+            if (y[v] < uTop) continue;
+
+            if (x[v] >= uRight) continue;
+            if (x[u] >= x[v] + w[v]) continue;
+
+            if (y[v] < bestY) {
+                bestY = y[v];
+                bestV = v;
+            }
+        }
+
+        if (bestV >= 0) {
+            tree.nodes[u].right = bestV;
+            hasParent[bestV] = true;
+        }
+    }
+
+    for (int i = 0; i < n; ++i) {
+        if (hasParent[i]) continue;
+        if (i == root) continue;
+
+        int cur = root;
+        int guard = 0;
+        while (tree.nodes[cur].right >= 0 && guard++ < n) {
+            cur = tree.nodes[cur].right;
+        }
+        if (tree.nodes[cur].right < 0 && cur != i) {
+            tree.nodes[cur].right = i;
+            hasParent[i] = true;
+        }
+    }
+
+    return tree;
 }
 
 /************************************************************************************

@@ -24,56 +24,67 @@ enum class Section : int {
  *  @brief  Структура данных для блока design
  ***********************************************************************************/
 struct DesignData {
-	int chipWidth = 0;
-	int chipHeight = 0;
-	int gridSize = 0;
+	int					chipWidth					= 0;
+	int					chipHeight					= 0;
+	int					gridSize					= 0;
 };
 
 /************************************************************************************
  *  @brief  Структура данных для блока blocks
  ***********************************************************************************/
 struct BlockData {
-	QString id;
-	int width = 0;
-	int height = 0;
-	bool rotationAllowed = false;
+	QString				id;
+	int					width						= 0;
+	int					height						= 0;
+	bool				rotationAllowed				= false;
+	bool				rotationAllowedSet			= false;
 };
 
 /************************************************************************************
  *  @brief  Структура данных для блока sequence_pair
  ***********************************************************************************/
 struct SequencePair {
-	QVector<QString> A;
-	QVector<QString> B;
+	QVector<QString>	A;
+	QVector<QString>	B;
 };
 
 /************************************************************************************
  *  @brief  Структура данных для блока nets
  ***********************************************************************************/
 struct NetsData {
-	QString net_id;
-	QVector<QString> block_ids;
+	QString				net_id;
+	QVector<QString>	block_ids;
 };
 
 /************************************************************************************
  *  @brief  Структура данных для блока decoder_params
  ***********************************************************************************/
 struct DecoderParams {
-	bool useBTree = false;
-	bool allowRotationDuringDecode = false;
-	QString placementStrategy;
+	bool				useBTree					= false;
+	bool				allowRotationDuringDecode	= false;
+	QString				placementStrategy			= "bottom_left";
+
+	bool				useBTreeSet					= false;
+	bool				allowRotationSet			= false;
+	bool				placementStrategySet		= false;
 };
 
 /************************************************************************************
  *  @brief  Структура данных для входного файла
  ***********************************************************************************/
 struct FileData {
-	DesignData designData;
-	QVector<BlockData> blocks;
-	SequencePair sequencePairData;
-	QVector<NetsData> nets;
-	DecoderParams decoderParamsData;
+	DesignData			designData;
+	QVector<BlockData>	blocks;
+	SequencePair		sequencePairData;
+	QVector<NetsData>	nets;
+	DecoderParams		decoderParamsData;
 };
 
+/************************************************************************************
+ *  @brief  Функция чтения входного файла
+ *  @param  filename - имя файла с входными данными
+ *			data     - данные, необходимые для размещения
+ *  @return успешно/неуспешно прочитанный файл, данные для размещения
+ ***********************************************************************************/
 bool read(const QString& filename, FileData& data);
 

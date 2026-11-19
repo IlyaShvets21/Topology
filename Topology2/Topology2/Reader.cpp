@@ -1,4 +1,5 @@
 #include "Reader.hpp"
+#include "Validator.hpp"
 #include "Logger.hpp"
 
 #include <QFile>
@@ -124,9 +125,6 @@ bool parseNetsList(const QString& line, const QString& name, NetsData& netsData,
     return true;
 }
 
-/************************************************************************************
- *  @brief  Функция чтения входного файла
- ***********************************************************************************/
 bool read(const QString& filename, FileData& data) {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -175,7 +173,6 @@ bool read(const QString& filename, FileData& data) {
                     return false;
                 }
                 section = Section::Design;
-                //Logger::instance().log("design:");
             }
             else if (t.contains("\"blocks\"")) {
                 if (designCount == 0) {
@@ -183,7 +180,6 @@ bool read(const QString& filename, FileData& data) {
                     return false;
                 }
                 section = Section::Blocks;
-                //Logger::instance().log("blocks:");
             }
             else if (t.contains("\"sequence_pair\"")) {
                 if (designCount == 0) {
@@ -195,7 +191,6 @@ bool read(const QString& filename, FileData& data) {
                     return false;
                 }
                 section = Section::SequencePair;
-                //Logger::instance().log("sequence_pair:");
             }
             else if (t.contains("\"nets\"")) {
                 if (designCount == 0) {
@@ -207,7 +202,6 @@ bool read(const QString& filename, FileData& data) {
                     return false;
                 }
                 section = Section::Nets;
-                //Logger::instance().log("nets:");
             }
             else if (t.contains("\"decoder_params\"")) {
                 if (designCount == 0) {
@@ -219,7 +213,6 @@ bool read(const QString& filename, FileData& data) {
                     return false;
                 }
                 section = Section::DecoderParams;
-                //Logger::instance().log("decoder_params:");
             }
             continue;
         }
@@ -227,8 +220,9 @@ bool read(const QString& filename, FileData& data) {
         //Считывание параметров группы design
         if (section == Section::Design) {
             if (t == "}," || t == "}") {
-                if (data.designData.chipWidth == 0 || data.designData.chipHeight == 0 ||data.designData.gridSize == 0) {
-                    Logger::instance().log("Error: One of the chip parameters is not specified. " "All data must be provided");
+                QString error;
+                if (!Validator::isComplete(data.designData, error)) {
+                    Logger::instance().log("Error: " + error);
                     return false;
                 }
                 ++designCount;
@@ -241,15 +235,12 @@ bool read(const QString& filename, FileData& data) {
 
             if (key == "chip_width") {
                 data.designData.chipWidth = value.toInt();
-                //Logger::instance().log(QString("   chip_width = %1").arg(data.designData.chipWidth));
             }
             else if (key == "chip_height") {
                 data.designData.chipHeight = value.toInt();
-                //Logger::instance().log(QString("   chip_height = %1").arg(data.designData.chipHeight));
             }
             else if (key == "grid_size") {
                 data.designData.gridSize = value.toInt();
-                //Logger::instance().log(QString("   grid_size = %1").arg(data.designData.gridSize));
             }
             continue;
         }
@@ -257,6 +248,11 @@ bool read(const QString& filename, FileData& data) {
         //Считывание параметров группы blocks
         if (section == Section::Blocks) {
             if (t == "]," || t == "]") {
+                QString error;
+                if (!Validator::checkUniqueBlockIds(data.blocks, error)) {
+                    Logger::instance().log("Error: " + error);
+                    return false;
+                }
                 section = Section::Undefined;
                 continue;
             }
@@ -273,9 +269,9 @@ bool read(const QString& filename, FileData& data) {
             BlockData& blockData = data.blocks.last();
 
             if (t == "}," || t == "}") {
-                if (blockData.id.isEmpty() || blockData.width == 0 || blockData.height == 0)
-                {
-                    Logger::instance().log("Error: One of the blocks parameters is not specified. " "All data must be provided");
+                QString error;
+                if (!Validator::isComplete(blockData, error)) {
+                    Logger::instance().log("Error: " + error);
                     return false;
                 }
                 ++blocksCount;
@@ -296,19 +292,22 @@ bool read(const QString& filename, FileData& data) {
                 }
 
                 blockData.id = inner;
-                //Logger::instance().log(QString("   id = %1").arg(blockData.id));
             }
             else if (key == "width") {
                 blockData.width = value.toInt();
-                //Logger::instance().log(QString("   width = %1").arg(blockData.width));
             }
             else if (key == "height") {
                 blockData.height = value.toInt();
-                //Logger::instance().log(QString("   height = %1").arg(blockData.height));
             }
             else if (key == "rotation_allowed") {
-                blockData.rotationAllowed = (value == "true");
-                //Logger::instance().log(QString("   rotation_allowed = %1").arg(blockData.rotationAllowed ? "true" : "false"));
+                QString error;
+                bool parsed;
+                if (!Validator::parseBool(value, parsed, error, "allow_rotation_during_decode")) {
+                    Logger::instance().log("Error: " + error);
+                    return false;
+                }
+                blockData.rotationAllowed = parsed;
+                blockData.rotationAllowedSet = true;
             }
             continue;
         }
@@ -316,46 +315,31 @@ bool read(const QString& filename, FileData& data) {
         //Считывание параметров группы sequence_pair
         if (section == Section::SequencePair) {
             if (t == "}" || t == "},") {
-                for (const auto& b : data.blocks) {
-                    if (!data.sequencePairData.A.contains(b.id)) {
-                        Logger::instance().log(QString("Error: block \"%1\" is missing in A").arg(b.id));
-                        return false;
-                    }
-                    if (!data.sequencePairData.B.contains(b.id)) {
-                        Logger::instance().log(QString("Error: block \"%1\" is missing in B").arg(b.id));
-                        return false;
-                    }
-                }
-                if (data.sequencePairData.A.size() != data.blocks.size()) {
-                    Logger::instance().log(QString("Error: A has %1 elements, but there are %2 blocks").arg(data.sequencePairData.A.size())
-                        .arg(data.blocks.size()));
+                QString error;
+                if (!Validator::checkSequencePair(data, error)) {
+                    Logger::instance().log("Error: " + error);
                     return false;
                 }
-                if (data.sequencePairData.B.size() != data.blocks.size()) {
-                    Logger::instance().log(QString("Error: B has %1 elements, but there are %2 blocks").arg(data.sequencePairData.B.size())
-                        .arg(data.blocks.size()));
-                    return false;
-                }
-
                 section = Section::Undefined;
                 continue;
             }
 
-            if (collectingA) {
-                bufferA += " " + t;
+            auto handleCollecting = [&](bool& collecting, QString& buffer, const QString& name) -> bool {
+                if (!collecting) return true; 
+                buffer += " " + t;
                 if (t.contains(']')) {
-                    collectingA = false;
-                    if (!parseSequenceList(bufferA, "A", data)) return false;
+                    collecting = false;
+                    if (!parseSequenceList(buffer, name, data)) return false;
                 }
+                return true;  
+                };
+
+            if (collectingA) {
+                if (!handleCollecting(collectingA, bufferA, "A")) return false;
                 continue;
             }
-
             if (collectingB) {
-                bufferB += " " + t;
-                if (t.contains(']')) {
-                    collectingB = false;
-                    if (!parseSequenceList(bufferB, "B", data)) return false;
-                }
+                if (!handleCollecting(collectingB, bufferB, "B")) return false;
                 continue;
             }
 
@@ -401,8 +385,9 @@ bool read(const QString& filename, FileData& data) {
             NetsData& netsData = data.nets.last();
 
             if (t == "}," || t == "}") {
-                if (netsData.net_id.isEmpty() || netsData.block_ids.isEmpty()) {
-                    Logger::instance().log("Error: One of the nets parameters is not specified. " "All data must be provided");
+                QString error;
+                if (!Validator::isComplete(netsData, error)) {
+                    Logger::instance().log("Error: " + error);
                     return false;
                 }
                 ++netsCount;
@@ -432,7 +417,6 @@ bool read(const QString& filename, FileData& data) {
                 }
 
                 netsData.net_id = inner;
-                ///Logger::instance().log(QString("   net_id = %1").arg(netsData.net_id));
             }
 
             else if (key == "block_ids") {
@@ -450,9 +434,9 @@ bool read(const QString& filename, FileData& data) {
         //Считывание параметров группы decoder_params
         if (section == Section::DecoderParams) {
             if (t == "}" || t == "},") {
-                const QString& ps = data.decoderParamsData.placementStrategy;
-                if (ps != "bottom_left" && ps != "min_hpwl") {
-                    Logger::instance().log("Error: One of the decoder parameters is not specified. " "All data must be provided");
+                QString error;
+                if (!Validator::checkDecoderParams(data.decoderParamsData, error)) {
+                    Logger::instance().log("Error: " + error);
                     return false;
                 }
                 section = Section::Undefined;
@@ -463,13 +447,24 @@ bool read(const QString& filename, FileData& data) {
             if (!parseKeyValue(t, key, value)) continue;
 
             if (key == "use_b_tree") {
-                data.decoderParamsData.useBTree = (value == "true");
-                //Logger::instance().log(QString("   use_b_tree = %1").arg(data.decoderParamsData.useBTree ? "true" : "false"));
+                QString error;
+                bool parsed;
+                if (!Validator::parseBool(value, parsed, error, "use_b_tree")) {
+                    Logger::instance().log("Error: " + error);
+                    return false;
+                }
+                data.decoderParamsData.useBTree = parsed;
+                data.decoderParamsData.useBTreeSet = true;   
             }
             else if (key == "allow_rotation_during_decode") {
-                data.decoderParamsData.allowRotationDuringDecode = (value == "true");
-                /*Logger::instance().log(QString("   allow_rotation_during_decode = %1")
-                    .arg(data.decoderParamsData.allowRotationDuringDecode ? "true" : "false"));*/
+                QString error;
+                bool parsed;
+                if (!Validator::parseBool(value, parsed, error, "allow_rotation_during_decode")) {
+                    Logger::instance().log("Error: " + error);
+                    return false;
+                }
+                data.decoderParamsData.allowRotationDuringDecode = parsed;
+                data.decoderParamsData.allowRotationSet = true;  
             }
             else if (key == "placement_strategy") {
                 QString parsePlacementStrategy;
@@ -477,11 +472,16 @@ bool read(const QString& filename, FileData& data) {
                     parsePlacementStrategy = value.mid(1, value.size() - 2);
                 }
                 data.decoderParamsData.placementStrategy = parsePlacementStrategy;
-                //Logger::instance().log(QString("   placement_strategy = %1").arg(data.decoderParamsData.placementStrategy));
+                data.decoderParamsData.placementStrategySet = true;  
             }
             continue;
         }
     }
 
-    return true;
+    QString error;
+    if (!Validator::validateAll(data, error)) {
+        Logger::instance().log("Error: " + error);
+        return false;
+    }
+    return true; 
 }

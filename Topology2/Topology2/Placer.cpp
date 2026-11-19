@@ -97,25 +97,37 @@ static double scoreHPWL(const PlacementContext& ctx, const QVector<int>& x, cons
 			for (int b = a + 1; b < k; ++b) {
 				const double dx = cx[a] - cx[b];
 				const double dy = cy[a] - cy[b];
-				total += std::sqrt(dx * dx + dy * dy);
+				total += abs(dx) + abs(dy);
 			}
 		}
 	}
 	return total;
 }
 
-/************************************************************************************
- *  @brief  Функция минимизации плотности упаковки
- ***********************************************************************************/
 PlacementImprovements improve(const PlacementContext& ctx, QVector<int>& w, QVector<int>& h,
-							  bool useBTree, const BTreeData& tree) {
+	bool useBTree, const BTreeData& tree, int chipW, int chipH, const FileData& data, const QVector<bool>& rotated) {
 	const int n = ctx.n;
-
 	PlacementImprovements imp;
 
 	if (useBTree) {
-		BTreeDecoder::decodeBTree(tree, w, h, imp.x, imp.y);
-		BTreeDecoder::resolveOverlaps(imp.x, imp.y, w, h);
+		QVector<int> spX = longestPath(n, ctx.seq_pair.H, w);
+		QVector<int> spY = longestPath(n, ctx.seq_pair.V, h);
+
+		BTreeData layoutTree = BTreeDecoder::buildBTreeFromLayout(data, spX, spY, w, h, rotated);
+
+		BTreeDecoder::decodeBTree(layoutTree, w, h, imp.x, imp.y);
+
+		for (int i = 0; i < n; ++i) {
+			if (imp.x[i] != spX[i] || imp.y[i] != spY[i]) {
+				Logger::instance().log(
+					QString("Warning: B-tree decode mismatch at block %1: "
+						"expected (%2, %3), got (%4, %5)")
+					.arg(i).arg(spX[i]).arg(spY[i]).arg(imp.x[i]).arg(imp.y[i]));
+				imp.x = spX;
+				imp.y = spY;
+				break;
+			}
+		}
 	}
 	else {
 		imp.x = longestPath(n, ctx.seq_pair.H, w);
@@ -131,15 +143,25 @@ PlacementImprovements improve(const PlacementContext& ctx, QVector<int>& w, QVec
 	imp.totalHeight = maxY;
 	imp.area = 1LL * maxX * maxY;
 	imp.hpwl = scoreHPWL(ctx, imp.x, imp.y, w, h);
+
+	imp.fitsChip = true;
+	for (int i = 0; i < n; ++i) {
+		if (imp.x[i] < 0 || imp.y[i] < 0 ||
+			imp.x[i] + w[i] > chipW ||
+			imp.y[i] + h[i] > chipH) {
+			imp.fitsChip = false;
+			break;
+		}
+	}
+
 	return imp;
 }
 
-/************************************************************************************
- *  @brief  Функция размещения блоков внутри рабочего поля
- ***********************************************************************************/
 PlacementResult place(const FileData& data) {
 	const auto& blocks = data.blocks;
 	const int n = blocks.size();
+	const int chipW = data.designData.chipWidth;
+	const int chipH = data.designData.chipHeight;
 
 	if (n == 0) {
 		PlacementResult result;
@@ -155,7 +177,7 @@ PlacementResult place(const FileData& data) {
 
 	BTreeData tree;
 	if (useBTree) {
-		tree = BTreeDecoder::buildBTree(data, ctx.seq_pair, ctx.blockIndex);
+		tree = BTreeDecoder::buildBTree(data, ctx.seq_pair);
 	}
 
 	QVector<int> w(n), h(n);
@@ -166,54 +188,69 @@ PlacementResult place(const FileData& data) {
 		h[i] = blocks[i].height;
 	}
 
-	PlacementImprovements best = improve(ctx, w, h, useBTree, tree);
+	PlacementImprovements best = improve(ctx, w, h, useBTree, tree, chipW, chipH, data, rotate);
+
+	bool haveValidPlacement = best.fitsChip;
 
 	if (data.decoderParamsData.allowRotationDuringDecode == true) {
-		if (data.decoderParamsData.placementStrategy == "bottom_left") {
-			bool improved = true;
-			while (improved) {
-				improved = false;
+		const bool byHpwl =	(data.decoderParamsData.placementStrategy == "min_hpwl");
+		bool improved = true;
+		while (improved) {
+			improved = false;
 
-				for (int i = 0; i < n; ++i) {
-					if (!blocks[i].rotationAllowed) continue;
+			for (int i = 0; i < n; ++i) {
+				if (!blocks[i].rotationAllowed) continue;
 
-					std::swap(w[i], h[i]);
-					PlacementImprovements candidate = improve(ctx, w, h, useBTree, tree);
+				std::swap(w[i], h[i]);
+				PlacementImprovements candidate = improve(ctx, w, h, useBTree, tree, chipW, chipH, data, rotate);
 
-					if (candidate.area < best.area) {
-						best = candidate;
-						rotate[i] = !rotate[i];
-						improved = true;
+
+				bool accept = false;
+
+				if (candidate.fitsChip) {
+					if (!haveValidPlacement) {
+						accept = true;
+					}
+					else if (byHpwl) {
+						accept = (candidate.hpwl < best.hpwl);
 					}
 					else {
-						std::swap(w[i], h[i]);
+						accept = (candidate.area < best.area);
 					}
+				}
+				else {
+					if (!haveValidPlacement) {
+						if (byHpwl) {
+							accept = (candidate.hpwl < best.hpwl);
+						}
+						else {
+							accept = (candidate.area < best.area);
+						}
+					}
+					else {
+						accept = false;
+					}
+				}
+
+				if (accept) {
+					best = candidate;
+					rotate[i] = !rotate[i];
+					improved = true;
+
+					if (candidate.fitsChip) {
+						haveValidPlacement = true;
+					}
+				}
+				else {
+					std::swap(w[i], h[i]); 
 				}
 			}
 		}
-		else if (data.decoderParamsData.placementStrategy == "min_hpwl") {
-			bool improved = true;
-			while (improved) {
-				improved = false;
+	}
 
-				for (int i = 0; i < n; ++i) {
-					if (!blocks[i].rotationAllowed) continue;
-
-					std::swap(w[i], h[i]);
-					PlacementImprovements candidate = improve(ctx, w, h, useBTree, tree);
-
-					if (candidate.hpwl < best.hpwl) {
-						best = candidate;
-						rotate[i] = !rotate[i];
-						improved = true;
-
-					}
-					else {
-						std::swap(w[i], h[i]);
-					}
-				}
-			}
-		}
+	if (!best.fitsChip) {
+		Logger::instance().log("Error: No valid placement found that fits the chip. "
+			"All configurations exceed the chip boundaries.");
 	}
 
 	PlacementResult result;

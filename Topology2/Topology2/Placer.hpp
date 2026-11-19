@@ -8,6 +8,7 @@
 #include "Reader.hpp"
 #include "SequencePairDecoder.hpp"
 #include "BTreeDecoder.hpp"
+#include "Logger.hpp"
 
 #include <QVector>
 #include <QString>
@@ -39,6 +40,8 @@ struct PlacementImprovements {
 						  totalHeight	= 0;
 	long long			  area			= 0;
 	double				  hpwl			= 0.0;
+
+	bool			      fitsChip		= true;
 };
 
 /************************************************************************************
@@ -68,5 +71,26 @@ struct PlacementResult {
 	BTreeData			  bTree;
 };
 
+/************************************************************************************
+ *  @brief  Функция размещения блоков внутри рабочего поля
+ *  @param  data - данные входного файла
+ *	@return результаты размещения 
+ ***********************************************************************************/
 PlacementResult place(const FileData& data);
+
+/************************************************************************************
+ *  @brief  Функция минимизации плотности упаковки
+ *  @param  ctx		 - текущее размещение
+ *			w		 - список ширин блоков
+ *			h		 - список высот блоков
+ *			useBTree - флаг использования B-Tree
+ *			tree	 - данные B-Tree
+ * @return  размещение с минимизированной площадью/HPWL
+ ***********************************************************************************/
+PlacementImprovements improve(const PlacementContext& ctx,
+	QVector<int>& w, QVector<int>& h,
+	bool useBTree, const BTreeData& tree,
+	int chipW, int chipH,
+	const FileData& data,
+	const QVector<bool>& rotated);
 

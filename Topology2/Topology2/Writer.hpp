@@ -8,4 +8,12 @@
 #include "Logger.hpp"
 #include <chrono>
 
+ /************************************************************************************
+  *  @brief  Функция предназначена для вывода информации о размещении в log и в
+  *			выходной файл
+  *  @param  filename - выходной файл .txt
+  *			 result   - результаты размещения, выходные параметры
+  *			 data	  - данные входного файла
+  *			 elasped  - время выполнения программы
+  ************************************************************************************/
 bool write(const QString& filename, const PlacementResult& result, const FileData& data, std::chrono::duration<double> elasped);

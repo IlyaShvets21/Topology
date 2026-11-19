@@ -1,0 +1,634 @@
+{
+  "design": {
+    "chip_width": 2991,
+    "chip_height": 2991,
+    "grid_size": 10
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "width": 352,
+      "height": 288,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B2",
+      "width": 133,
+      "height": 66,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B3",
+      "width": 182,
+      "height": 85,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B4",
+      "width": 284,
+      "height": 260,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B5",
+      "width": 236,
+      "height": 130,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B6",
+      "width": 179,
+      "height": 381,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B7",
+      "width": 195,
+      "height": 227,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B8",
+      "width": 90,
+      "height": 255,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B9",
+      "width": 150,
+      "height": 164,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B10",
+      "width": 165,
+      "height": 366,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B11",
+      "width": 208,
+      "height": 115,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B12",
+      "width": 172,
+      "height": 207,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B13",
+      "width": 220,
+      "height": 345,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B14",
+      "width": 42,
+      "height": 254,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B15",
+      "width": 186,
+      "height": 267,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B16",
+      "width": 134,
+      "height": 85,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B17",
+      "width": 278,
+      "height": 255,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B18",
+      "width": 137,
+      "height": 297,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B19",
+      "width": 237,
+      "height": 362,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B20",
+      "width": 337,
+      "height": 86,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B21",
+      "width": 58,
+      "height": 204,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B22",
+      "width": 144,
+      "height": 219,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B23",
+      "width": 385,
+      "height": 311,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B24",
+      "width": 139,
+      "height": 56,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B25",
+      "width": 62,
+      "height": 389,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B26",
+      "width": 79,
+      "height": 348,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B27",
+      "width": 58,
+      "height": 75,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B28",
+      "width": 282,
+      "height": 181,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B29",
+      "width": 273,
+      "height": 197,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B30",
+      "width": 296,
+      "height": 38,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B31",
+      "width": 177,
+      "height": 226,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B32",
+      "width": 294,
+      "height": 200,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B33",
+      "width": 342,
+      "height": 108,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B34",
+      "width": 168,
+      "height": 275,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B35",
+      "width": 233,
+      "height": 348,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B36",
+      "width": 40,
+      "height": 397,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B37",
+      "width": 249,
+      "height": 299,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B38",
+      "width": 340,
+      "height": 275,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B39",
+      "width": 92,
+      "height": 109,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B40",
+      "width": 154,
+      "height": 145,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B41",
+      "width": 109,
+      "height": 126,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B42",
+      "width": 311,
+      "height": 51,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B43",
+      "width": 37,
+      "height": 370,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B44",
+      "width": 65,
+      "height": 123,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B45",
+      "width": 71,
+      "height": 143,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B46",
+      "width": 94,
+      "height": 258,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B47",
+      "width": 42,
+      "height": 298,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B48",
+      "width": 285,
+      "height": 166,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B49",
+      "width": 62,
+      "height": 317,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B50",
+      "width": 61,
+      "height": 156,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B51",
+      "width": 328,
+      "height": 149,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B52",
+      "width": 120,
+      "height": 182,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B53",
+      "width": 207,
+      "height": 342,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B54",
+      "width": 123,
+      "height": 38,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B55",
+      "width": 385,
+      "height": 50,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B56",
+      "width": 148,
+      "height": 199,
+      "rotation_allowed": false
+    },
+    {
+      "id": "B57",
+      "width": 211,
+      "height": 368,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B58",
+      "width": 253,
+      "height": 266,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B59",
+      "width": 173,
+      "height": 38,
+      "rotation_allowed": true
+    },
+    {
+      "id": "B60",
+      "width": 162,
+      "height": 61,
+      "rotation_allowed": false
+    }
+  ],
+  "sequence_pair": {
+    "A": [
+      "B13", "B30", "B23", "B44", "B33", "B5", "B25", "B28", "B42", "B51",
+      "B27", "B17", "B40", "B55", "B4", "B9", "B20", "B49", "B10", "B48",
+      "B6", "B1", "B24", "B43", "B32", "B19", "B8", "B35", "B16", "B53",
+      "B18", "B45", "B57", "B50", "B29", "B39", "B31", "B36", "B54", "B26",
+      "B15", "B52", "B41", "B11", "B60", "B47", "B56", "B21", "B34", "B7",
+      "B58", "B38", "B2", "B12", "B46", "B59", "B3", "B37", "B14", "B22"
+    ],
+    "B": [
+      "B17", "B37", "B20", "B23", "B31", "B42", "B49", "B28", "B24", "B50",
+      "B54", "B1", "B57", "B36", "B4", "B13", "B27", "B21", "B2", "B29",
+      "B9", "B16", "B56", "B60", "B6", "B58", "B12", "B32", "B47", "B19",
+      "B43", "B39", "B30", "B59", "B18", "B15", "B35", "B26", "B8", "B25",
+      "B40", "B34", "B46", "B11", "B53", "B14", "B51", "B41", "B22", "B45",
+      "B33", "B44", "B3", "B10", "B7", "B52", "B55", "B38", "B5", "B48"
+    ]
+  },
+  "nets": [
+    {
+      "net_id": "N1",
+      "block_ids": ["B9", "B21", "B37", "B4", "B50"]
+    },
+    {
+      "net_id": "N2",
+      "block_ids": ["B27", "B32", "B15"]
+    },
+    {
+      "net_id": "N3",
+      "block_ids": ["B18", "B53", "B33", "B16", "B52", "B44", "B9"]
+    },
+    {
+      "net_id": "N4",
+      "block_ids": ["B31", "B47", "B5", "B30", "B40", "B37", "B9", "B12"]
+    },
+    {
+      "net_id": "N5",
+      "block_ids": ["B10", "B46", "B12", "B23"]
+    },
+    {
+      "net_id": "N6",
+      "block_ids": ["B26", "B13", "B38", "B25", "B45", "B29", "B43", "B21", "B33", "B1"]
+    },
+    {
+      "net_id": "N7",
+      "block_ids": ["B35", "B27", "B4", "B59", "B21", "B22"]
+    },
+    {
+      "net_id": "N8",
+      "block_ids": ["B28", "B33", "B20", "B34", "B46", "B41", "B6", "B24", "B40", "B30"]
+    },
+    {
+      "net_id": "N9",
+      "block_ids": ["B8", "B29", "B58", "B6", "B15", "B32"]
+    },
+    {
+      "net_id": "N10",
+      "block_ids": ["B48", "B9", "B59", "B50", "B53", "B14"]
+    },
+    {
+      "net_id": "N11",
+      "block_ids": ["B25", "B45", "B8", "B6", "B23", "B20", "B57"]
+    },
+    {
+      "net_id": "N12",
+      "block_ids": ["B34", "B44", "B33", "B23", "B48", "B37"]
+    },
+    {
+      "net_id": "N13",
+      "block_ids": ["B55", "B57", "B5"]
+    },
+    {
+      "net_id": "N14",
+      "block_ids": ["B59", "B8", "B9", "B6", "B17", "B58", "B47", "B1"]
+    },
+    {
+      "net_id": "N15",
+      "block_ids": ["B48", "B57", "B59", "B43", "B60", "B39", "B17", "B20", "B30"]
+    },
+    {
+      "net_id": "N16",
+      "block_ids": ["B40", "B24", "B47"]
+    },
+    {
+      "net_id": "N17",
+      "block_ids": ["B26", "B55", "B52"]
+    },
+    {
+      "net_id": "N18",
+      "block_ids": ["B25", "B8", "B33", "B56", "B14", "B15", "B43", "B21", "B10", "B38"]
+    },
+    {
+      "net_id": "N19",
+      "block_ids": ["B25", "B28", "B11", "B47", "B49", "B50", "B24", "B48", "B17"]
+    },
+    {
+      "net_id": "N20",
+      "block_ids": ["B7", "B9", "B27"]
+    },
+    {
+      "net_id": "N21",
+      "block_ids": ["B3", "B10", "B8", "B21", "B16", "B47"]
+    },
+    {
+      "net_id": "N22",
+      "block_ids": ["B37", "B59", "B12"]
+    },
+    {
+      "net_id": "N23",
+      "block_ids": ["B23", "B26"]
+    },
+    {
+      "net_id": "N24",
+      "block_ids": ["B45", "B38"]
+    },
+    {
+      "net_id": "N25",
+      "block_ids": ["B49", "B30", "B2", "B44", "B25", "B4", "B6", "B19"]
+    },
+    {
+      "net_id": "N26",
+      "block_ids": ["B30", "B16", "B36", "B46", "B60"]
+    },
+    {
+      "net_id": "N27",
+      "block_ids": ["B33", "B15", "B36", "B50", "B37", "B11", "B14"]
+    },
+    {
+      "net_id": "N28",
+      "block_ids": ["B32", "B39", "B10", "B43"]
+    },
+    {
+      "net_id": "N29",
+      "block_ids": ["B43", "B49", "B24", "B48", "B3", "B28"]
+    },
+    {
+      "net_id": "N30",
+      "block_ids": ["B34", "B24", "B9"]
+    },
+    {
+      "net_id": "N31",
+      "block_ids": ["B51", "B52", "B39", "B36"]
+    },
+    {
+      "net_id": "N32",
+      "block_ids": ["B16", "B48", "B15", "B40", "B35", "B60"]
+    },
+    {
+      "net_id": "N33",
+      "block_ids": ["B7", "B59", "B37", "B20", "B36", "B33", "B18", "B13", "B9", "B49"]
+    },
+    {
+      "net_id": "N34",
+      "block_ids": ["B48", "B26", "B18", "B40", "B56", "B42", "B6", "B5", "B17"]
+    },
+    {
+      "net_id": "N35",
+      "block_ids": ["B47", "B13", "B20", "B42", "B22", "B41", "B24", "B25", "B6"]
+    },
+    {
+      "net_id": "N36",
+      "block_ids": ["B55", "B7", "B31", "B49", "B20"]
+    },
+    {
+      "net_id": "N37",
+      "block_ids": ["B2", "B12", "B1", "B13", "B26", "B51", "B16"]
+    },
+    {
+      "net_id": "N38",
+      "block_ids": ["B38", "B42", "B4"]
+    },
+    {
+      "net_id": "N39",
+      "block_ids": ["B25", "B44", "B13", "B48", "B34", "B26", "B10", "B60"]
+    },
+    {
+      "net_id": "N40",
+      "block_ids": ["B17", "B10", "B8", "B23", "B16", "B59"]
+    },
+    {
+      "net_id": "N41",
+      "block_ids": ["B28", "B19", "B43", "B45", "B57", "B38", "B25", "B48"]
+    },
+    {
+      "net_id": "N42",
+      "block_ids": ["B24", "B34", "B2", "B19", "B37", "B3"]
+    },
+    {
+      "net_id": "N43",
+      "block_ids": ["B55", "B48", "B11", "B49", "B60", "B5"]
+    },
+    {
+      "net_id": "N44",
+      "block_ids": ["B8", "B58", "B60", "B15", "B49", "B31", "B57", "B34", "B5", "B51"]
+    },
+    {
+      "net_id": "N45",
+      "block_ids": ["B41", "B5", "B45", "B17", "B49", "B31", "B50", "B8", "B16", "B38"]
+    },
+    {
+      "net_id": "N46",
+      "block_ids": ["B21", "B9", "B46", "B58", "B39", "B5", "B60"]
+    },
+    {
+      "net_id": "N47",
+      "block_ids": ["B19", "B4", "B44", "B2", "B23", "B58", "B46", "B59", "B47"]
+    },
+    {
+      "net_id": "N48",
+      "block_ids": ["B2", "B38", "B20", "B10", "B15", "B25", "B59", "B46", "B4", "B24"]
+    },
+    {
+      "net_id": "N49",
+      "block_ids": ["B9", "B12"]
+    },
+    {
+      "net_id": "N50",
+      "block_ids": ["B34", "B3", "B12", "B45"]
+    },
+    {
+      "net_id": "N51",
+      "block_ids": ["B14", "B23"]
+    },
+    {
+      "net_id": "N52",
+      "block_ids": ["B11", "B49", "B31", "B59", "B5", "B41", "B14", "B10", "B25"]
+    },
+    {
+      "net_id": "N53",
+      "block_ids": ["B47", "B28", "B53", "B37", "B60", "B36", "B18", "B32", "B12", "B15"]
+    },
+    {
+      "net_id": "N54",
+      "block_ids": ["B16", "B2", "B35", "B58", "B14", "B15", "B10", "B46", "B50", "B48"]
+    },
+    {
+      "net_id": "N55",
+      "block_ids": ["B34", "B59", "B16", "B46", "B41", "B15", "B49", "B29", "B32"]
+    },
+    {
+      "net_id": "N56",
+      "block_ids": ["B24", "B25", "B55", "B20"]
+    },
+    {
+      "net_id": "N57",
+      "block_ids": ["B23", "B51", "B1", "B27", "B44", "B6"]
+    },
+    {
+      "net_id": "N58",
+      "block_ids": ["B11", "B8", "B30", "B60", "B32", "B35", "B13"]
+    },
+    {
+      "net_id": "N59",
+      "block_ids": ["B41", "B33", "B32"]
+    },
+    {
+      "net_id": "N60",
+      "block_ids": ["B13", "B27", "B22", "B49", "B6", "B1", "B15", "B23", "B21"]
+    }
+  ],
+  "decoder_params": {
+    "use_b_tree": false,
+    "allow_rotation_during_decode": true,
+    "placement_strategy": "bottom_left"
+  }
+}

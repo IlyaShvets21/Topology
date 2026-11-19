@@ -1,0 +1,87 @@
+
+Placement:
+   B1 at (1226, 551) size 288x352
+   B2 at (1932, 1172) size 66x133
+   B3 at (1444, 1447) size 85x182
+   B4 at (959, 108) size 284x260
+   B5 at (0, 779) size 236x130
+   B6 at (1047, 551) size 179x381
+   B7 at (1112, 1455) size 227x195
+   B8 at (1188, 2296) size 255x90
+   B9 at (1998, 1172) size 150x164
+   B10 at (560, 2069) size 165x366
+   B11 at (2240, 622) size 208x115
+   B12 at (388, 2025) size 172x207
+   B13 at (0, 0) size 220x345
+   B14 at (1778, 1447) size 42x254
+   B15 at (1268, 990) size 186x267
+   B16 at (672, 1535) size 134x85
+   B17 at (2116, 1583) size 278x255
+   B18 at (1980, 324) size 137x297
+   B19 at (1778, 1838) size 237x362
+   B20 at (959, 368) size 337x86
+   B21 at (2148, 990) size 58x204
+   B22 at (1104, 1925) size 219x144
+   B23 at (0, 345) size 385x311
+   B24 at (1514, 454) size 139x56
+   B25 at (2148, 1194) size 62x389
+   B26 at (309, 1945) size 79x348
+   B27 at (561, 415) size 58x75
+   B28 at (906, 2296) size 282x181
+   B29 at (1900, 621) size 197x273
+   B30 at (220, 0) size 296x38
+   B31 at (1188, 2069) size 177x226
+   B32 at (1514, 551) size 294x200
+   B33 at (516, 0) size 342x108
+   B34 at (1764, 1172) size 168x275
+   B35 at (672, 1302) size 348x233
+   B36 at (1514, 894) size 397x40
+   B37 at (1529, 1447) size 249x299
+   B38 at (1104, 1650) size 340x275
+   B39 at (1020, 1334) size 92x109
+   B40 at (287, 1132) size 154x145
+   B41 at (0, 2293) size 109x126
+   B42 at (236, 804) size 51x311
+   B43 at (672, 932) size 37x370
+   B44 at (0, 656) size 65x123
+   B45 at (2448, 622) size 71x143
+   B46 at (2282, 108) size 94x258
+   B47 at (2240, 324) size 42x298
+   B48 at (1443, 2069) size 285x166
+   B49 at (0, 1327) size 62x317
+   B50 at (672, 1620) size 61x156
+   B51 at (287, 804) size 149x328
+   B52 at (1514, 990) size 120x182
+   B53 at (1020, 932) size 207x342
+   B54 at (1778, 1701) size 123x38
+   B55 at (287, 1277) size 385x50
+   B56 at (1616, 1172) size 148x199
+   B57 at (906, 2477) size 368x211
+   B58 at (851, 1650) size 253x266
+   B59 at (851, 1925) size 173x38
+   B60 at (1454, 1172) size 162x61
+   B61 at (725, 2296) size 181x102
+   B62 at (1243, 108) size 61x216
+   B63 at (1047, 454) size 309x97
+   B64 at (2097, 621) size 143x369
+   B65 at (309, 2435) size 301x246
+   B66 at (678, 454) size 369x400
+   B67 at (561, 108) size 398x307
+   B68 at (2240, 737) size 160x168
+   B69 at (388, 1945) size 150x80
+   B70 at (1514, 751) size 386x97
+   B71 at (1901, 1701) size 215x131
+   B72 at (236, 656) size 325x148
+   B73 at (1112, 1334) size 324x121
+   B74 at (672, 1776) size 179x169
+   B75 at (1443, 2295) size 168x142
+   B76 at (725, 2069) size 46x227
+   B77 at (0, 1644) size 309x353
+   B78 at (1020, 1274) size 248x60
+   B79 at (619, 415) size 59x103
+   B80 at (1808, 324) size 172x93
+
+Quality metrics:
+   total area = 2519x2688
+   total HPWL = 3.2408e+06
+   decoding time = 0.516619s

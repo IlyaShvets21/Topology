@@ -1,59 +1,48 @@
 {
   "design": {
-    "chip_width": 1000,
-    "chip_height": 1000,
-    "grid_size": 10,
-    "rotation_allowed": true
-  },
+    "chip_width": 300,
+    "chip_height": 300,
+    "grid_size": 10
+    },
   "blocks": [
     { 
       "id": "B1", 
-      "width": 120, 
-      "height": 80,  
+      "width": 40, 
+      "height": 30,  
       "rotation_allowed": true  
     },
     { 
       "id": "B2", 
-      "width": 90,  
-      "height": 150, 
+      "width": 80,  
+      "height": 30, 
       "rotation_allowed": true  
     },
     { 
       "id": "B3", 
-      "width": 200, 
-      "height": 100, 
-      "rotation_allowed": false 
-    },
+      "width": 60,  
+      "height": 40, 
+      "rotation_allowed": true  
+    }
     { 
       "id": "B4", 
-      "width": 70,  
-      "height": 70,  
-      "rotation_allowed": true  
-    },
-    { 
-      "id": "B5", 
-      "width": 160, 
-      "height": 120, 
+      "width": 50,  
+      "height": 50, 
       "rotation_allowed": true  
     }
   ],
   "sequence_pair": {
-    "A": ["B1", "B2", "B3", "B4", "B5"],
-    "B": ["B5", "B4", "B3", "B2", "B1"]
+    "A": ["B4", "B1", "B2", "B3"],
+    "B": ["B4", "B2", "B3", "B1"]
   },
   "nets": [
     {
       "net_id": "N1",
       "block_ids": ["B1", "B2"]
-    },
-    {
-      "net_id": "N2",
-      "block_ids": ["B3", "B4", "B5"]
     }
   ],
   "decoder_params": {
     "use_b_tree": true,
     "allow_rotation_during_decode": true,
-    "placement_strategy": "min_hpwl"
+    "placement_strategy": "bottom_left"
   }
 }

@@ -1,0 +1,15 @@
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\BTreeDecoder.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\BTreeDecoder.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\Logger.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\Logger.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\main.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\main.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\MainWindow.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\MainWindow.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\Placer.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\Placer.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\Reader.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\Reader.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\SequencePairDecoder.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\SequencePairDecoder.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\Validator.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\Validator.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\ViewBTree.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\ViewBTree.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\ViewPlacement.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\ViewPlacement.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\Writer.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\Writer.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\qt\moc\moc_Logger.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\moc_Logger.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\qt\moc\moc_MainWindow.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\moc_MainWindow.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\qt\moc\moc_ViewPlacement.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\moc_ViewPlacement.obj
+C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\qt\moc\moc_ViewBTree.cpp;C:\Users\i.shvets\Desktop\Топология\Topology2\Topology2\x64\Release\moc_ViewBTree.obj

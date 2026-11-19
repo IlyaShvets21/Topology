@@ -8,6 +8,7 @@
   Placer.cpp
   Reader.cpp
   SequencePairDecoder.cpp
+  Validator.cpp
   ViewBTree.cpp
   ViewPlacement.cpp
   Writer.cpp

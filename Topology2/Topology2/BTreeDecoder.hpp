@@ -35,9 +35,49 @@ struct BTreeData {
 
 class BTreeDecoder {
 public:
-	static BTreeData buildBTree(const FileData& data, const SequencePairData& sequence_pair, const QHash<QString, int>& blockIndex);
+
+/************************************************************************************
+ *  @brief  Функция построения B-tree из sequence_pair
+ *  @param  data		  - источник информации о блоках
+ *			sequence_pair - источник отношений для построения B-Tree
+ *  @return все узлы в плоском массиве, индекс корня
+ ***********************************************************************************/
+	static BTreeData buildBTree(const FileData& data, const SequencePairData& sequence_pair);
+
+/************************************************************************************
+ *  @brief  Функция декодирования B-Tree в координаты
+ *  @param  tree - построенное B-Tree
+ *			w	 - текущие ширины блоков
+ *			h    - текущие высоты блоков
+ *			x	 - координаты X блоков
+ *			y	 - координаты Y блоков
+ ***********************************************************************************/
 	static void decodeBTree(const BTreeData& tree, const QVector<int>& w, const QVector<int>& h,
 		QVector<int>& x, QVector<int>& y);
+
+/************************************************************************************
+ *  @brief  Функция построения B-tree из допустимой планировки
+ *  @param  data    - входные данные (blocks: id, исходные размеры)
+ *  @param  x       - координаты X блоков (из допустимой планировки)
+ *  @param  y       - координаты Y блоков (из допустимой планировки)
+ *  @param  w       - текущие ширины блоков (с учётом поворотов)
+ *  @param  h       - текущие высоты блоков (с учётом поворотов)
+ *  @param  rotated - флаги поворота блоков (true — блок повёрнут)
+ *
+ *  @return BTreeData:
+ *          nodes   — плоский массив узлов BTreeNode
+ *          root    — индекс корня (-1, если дерево пустое)
+ ***********************************************************************************/
+	static BTreeData buildBTreeFromLayout(const FileData& data, const QVector<int>& x,
+		const QVector<int>& y, const QVector<int>& w, const QVector<int>& h, const QVector<bool>& rotated);
+
+/************************************************************************************
+ *  @brief  Функция компактификации после размещения, для избавления от наложений
+ *  @param  x	 - координаты X блоков
+ *			y    - координаты Y блоков
+ *			w	 - текущие ширины блоков
+ *			h	 - текущие высоты блоков
+ ***********************************************************************************/
 	static void resolveOverlaps(QVector<int>& x, QVector<int>& y, const QVector<int>& w, const QVector<int>& h);
 };
 
