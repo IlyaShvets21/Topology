@@ -157,6 +157,26 @@ bool Validator::checkDecoderParams(const DecoderParams& p, QString& error) {
     return true;
 }
 
+bool Validator::checkRowsMode(const DecoderParams& p, const DesignData& d, 
+    const QVector<BlockData>& blocks, QString& error) {
+    if (!p.useTracing) return true;
+
+    if (d.lineSize <= 0) {
+        error = "Field 'line_size' must be positive when 'use_rows' is true.";
+        return false;
+    }
+    for (const BlockData& b : blocks) {
+        if (b.height > d.lineSize) {
+            error = QString("Block '%1' has height %2, which exceeds "
+                "line_size %3. A block cannot be taller than a row.")
+                .arg(b.id).arg(b.height).arg(d.lineSize);
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool Validator::validateAll(const FileData& data, QString& error) {
     if (!isComplete(data.designData, error)) return false;
 
@@ -175,6 +195,7 @@ bool Validator::validateAll(const FileData& data, QString& error) {
 
     if (!checkSequencePair(data, error)) return false;
     if (!checkDecoderParams(data.decoderParamsData, error)) return false;
+    if (!checkRowsMode(data.decoderParamsData, data.designData, data.blocks, error)) return false;
 
     return true;
 }

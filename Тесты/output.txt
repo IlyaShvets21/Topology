@@ -1,12 +1,12 @@
 
 Placement:
    B1 at (50, 0) size 40x30 rotate no
-   B2 at (50, 30) size 80x30 rotate no
-   B3 at (130, 30) size 60x40 rotate no
+   B2 at (50, 70) size 80x30 rotate no
+   B3 at (130, 70) size 60x40 rotate no
    B4 at (0, 0) size 50x50 rotate no
 
 Quality metrics:
-   total area = 190x70
+   total area = 190x110
    total HPWL = 50
-   consumed memory = 87244 KiB
-   decoding time = 0.0001569s
+   consumed memory = 84008 KiB
+   decoding time = 0.0001316s

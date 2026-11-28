@@ -16,7 +16,7 @@ class ViewPlacement : public QWidget {
 public:
 	explicit ViewPlacement(QWidget* parent = nullptr);
 
-	void setPlacement(const PlacementResult& result, const DesignData& design, const QVector<NetsData>& nets);
+	void setPlacement(const PlacementResult& result, const DesignData& design, const QVector<NetsData>& nets, const DecoderParams& params);
 
 	void clear();
 
@@ -30,6 +30,7 @@ protected:
 private:
 	PlacementResult		placement;
 	DesignData			designView;
+	DecoderParams	    paramsData;
 	QVector<NetsData>	netsView;
 	bool				hasData		= false;
 
@@ -43,9 +44,19 @@ private:
 	bool dragging = false;
 	QPoint lastPos;
 
+	QString selectedBlockId;
+	QSet<QString> connectedBlockIds;
+
 	QPointF worldToScreen(double x, double y) const;
 	void fitToView();
 
+	int blockAt(const QPoint& screenPos) const;
+	void updateConnectedBlocks();
+	QColor blockColor(const QString& id, bool rotated) const;
+	QColor netColor(const NetsData& net) const;
+	bool isNetSelected(const NetsData& net) const;
+
 public slots:
 	void setShowNets(bool on); 
+	void clearSelection();
 };

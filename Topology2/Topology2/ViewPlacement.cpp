@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-
 ViewPlacement::ViewPlacement(QWidget* parent) : QWidget(parent) {
 	setMinimumSize(300, 200);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -43,9 +42,79 @@ void ViewPlacement::fitToView() {
 	);
 }
 
-void ViewPlacement::setPlacement(const PlacementResult& result, const DesignData& design, const QVector<NetsData>& nets) {
+int ViewPlacement::blockAt(const QPoint& screenPos) const {
+	if (!hasData) return -1;
+
+	const double worldX = (screenPos.x() - offset.x()) / scale;
+	const double worldY = designView.chipHeight - (screenPos.y() - offset.y()) / scale;
+
+	for (int i = 0; i < placement.blocks.size(); ++i) {
+		const auto& b = placement.blocks[i];
+		if (worldX >= b.x && worldX <= b.x + b.width &&
+			worldY >= b.y && worldY <= b.y + b.height) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+void ViewPlacement::updateConnectedBlocks() {
+	connectedBlockIds.clear();
+	if (selectedBlockId.isEmpty()) return;
+
+	for (const NetsData& net : netsView) {
+		if (net.block_ids.contains(selectedBlockId)) {
+			for (const QString& id : net.block_ids) {
+				if (id != selectedBlockId) {
+					connectedBlockIds.insert(id);
+				}
+			}
+		}
+	}
+}
+
+QColor ViewPlacement::blockColor(const QString& id, bool rotated) const {
+	if (selectedBlockId.isEmpty()) {
+		return rotated ? QColor(0, 255, 0) : QColor(0, 0, 255);
+	}
+
+	if (id == selectedBlockId) {
+		return QColor(255, 255, 0);
+	}
+
+	if (connectedBlockIds.contains(id)) {
+		return QColor(255, 165, 0);
+	}
+
+	return QColor(80, 80, 80);
+}
+
+QColor ViewPlacement::netColor(const NetsData& net) const {
+	if (selectedBlockId.isEmpty()) {
+		return QColor(255, 0, 0);
+	}
+	if (isNetSelected(net)) {
+		return QColor(255, 100, 0);
+	}
+	return QColor(80, 80, 80);
+}
+
+bool ViewPlacement::isNetSelected(const NetsData& net) const {
+	if (selectedBlockId.isEmpty()) return false;
+	return net.block_ids.contains(selectedBlockId);
+}
+
+void ViewPlacement::clearSelection() {
+	selectedBlockId.clear();
+	connectedBlockIds.clear();
+	update();
+}
+
+void ViewPlacement::setPlacement(const PlacementResult& result, const DesignData& design, 
+	const QVector<NetsData>& nets, const DecoderParams& params) {
 	placement = result;
 	designView = design;
+	paramsData = params;
 	netsView = nets;
 	hasData = true;
 
@@ -102,6 +171,25 @@ void ViewPlacement::paintEvent(QPaintEvent*) {
 		p.drawLine(QPointF(offset.x(), syPos), QPointF(offset.x() + drawW, syPos));
 	}
 
+	if (paramsData.useTracing) {
+		const int step = designView.lineSize + designView.channelSize;
+
+		p.setPen(QPen(QColor(255, 0, 0), 1));
+		for (int y = 0; y <= designView.chipHeight; y += step) {
+			const double syPos = worldToScreen(0, designView.chipHeight - y).y();
+			p.drawLine(QPointF(offset.x(), syPos),
+				QPointF(offset.x() + drawW, syPos));
+		}
+
+		if (designView.channelSize > 0) {
+			for (int y = designView.lineSize; y <= designView.chipHeight; y += step) {
+				const double syPos = worldToScreen(0, designView.chipHeight - y).y();
+				p.drawLine(QPointF(offset.x(), syPos),
+					QPointF(offset.x() + drawW, syPos));
+			}
+		}
+	}
+
 	p.setPen(QPen(QColor(200, 200, 200), 2));
 	p.drawRect(QRectF(offset, QSizeF(drawW, drawH)));
 
@@ -113,21 +201,19 @@ void ViewPlacement::paintEvent(QPaintEvent*) {
 		const QPointF tl = worldToScreen(b.x, designView.chipHeight - b.y - b.height);
 		const QRectF r(tl.x(), tl.y(), b.width * scale, b.height * scale);
 
-		QColor fill(0, 0, 255);
-		if (b.rotate) fill = QColor(0, 255, 0);
+		QColor fill = blockColor(b.id, b.rotate);
 		p.setBrush(fill);
 		p.setPen(QPen(QColor(20, 20, 20), 1));
 		p.drawRect(r);
 
 		if (r.width() > 20 && r.height() > 12) {
-			p.setPen(Qt::white);
+			p.setPen((b.id == selectedBlockId || connectedBlockIds.contains(b.id))
+				? Qt::black : Qt::white);
 			p.drawText(r, Qt::AlignCenter, b.id);
 		}
 	}
 
-	p.setPen(QColor(255, 0, 0));
 	p.setBrush(Qt::NoBrush);
-
 	if (showNets) {
 		for (const NetsData& net : netsView) {
 			const int k = net.block_ids.size();
@@ -148,6 +234,10 @@ void ViewPlacement::paintEvent(QPaintEvent*) {
 			}
 
 			if (centers.size() < 2) continue;
+
+			QColor color = netColor(net);
+			bool selected = isNetSelected(net);
+			p.setPen(QPen(color, selected ? 2.0 : 1.0));
 
 			for (int a = 0; a < centers.size(); ++a) {
 				for (int b = a + 1; b < centers.size(); ++b) {
@@ -191,6 +281,32 @@ void ViewPlacement::mousePressEvent(QMouseEvent* e) {
 		e->accept();
 		return;
 	}
+
+	if (e->button() == Qt::LeftButton && hasData) {
+		const int idx = blockAt(e->pos());
+		if (idx >= 0) {
+			const QString& id = placement.blocks[idx].id;
+			if (id == selectedBlockId) {
+				selectedBlockId.clear();
+				connectedBlockIds.clear();
+			}
+			else {
+				selectedBlockId = id;
+				updateConnectedBlocks();
+			}
+			update();
+			e->accept();
+			return;
+		}
+		else {
+			if (!selectedBlockId.isEmpty()) {
+				selectedBlockId.clear();
+				connectedBlockIds.clear();
+				update();
+			}
+		}
+	}
+
 	QWidget::mousePressEvent(e);
 }
 

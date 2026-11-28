@@ -1,212 +1,400 @@
-import random
-import sys
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <random>
+#include <algorithm>
+#include <set>
+#include <sstream>
+#include <cmath>
+#include <numeric>
 
+// ============================================================
+//  НАСТРОЙКИ ГЕНЕРАЦИИ — МЕНЯЙТЕ ЗДЕСЬ
+// ============================================================
 
-def make_blocks(n, seed=42, min_size=40, max_size=200, rot_prob=0.7):
-    random.seed(seed)
-    blocks = []
-    for i in range(1, n + 1):
-        w = random.randint(min_size, max_size)
-        h = random.randint(min_size, max_size)
-        if w == h:
-            h += random.randint(10, 50)
-        blocks.append({
-            "id": f"B{i}",
-            "width": w,
-            "height": h,
-            "rotation_allowed": random.random() < rot_prob
-        })
-    return blocks
+const int    N_BLOCKS = 20;          // число блоков
+const int    N_NETS = 6;          // число цепей (-1 = N_BLOCKS / 5)
+const int    SEED = 25;          // seed
 
-def make_sequence_pair(n, seed=42):
-    random.seed(seed + 1)  
-    ids = [f"B{i}" for i in range(1, n + 1)]
-    A = ids.copy()
-    B = ids.copy()
-    random.shuffle(A)
-    random.shuffle(B)
-    return {"A": A, "B": B}
+const std::string STRATEGY = "bottom_left";  // "bottom_left" или "min_hpwl"
+const bool        USE_B_TREE = false;      // true / false
+const int         CHIP_SIDE = -1;         // -1 = вычислить автоматически
+const bool        USE_ROWS = true;
+const int         LINE_SIZE = 100;
 
-def make_nets(n, seed=42, min_nets=None, max_nets=None,
-              min_blocks_per_net=2, max_blocks_per_net=5):
-    random.seed(seed + 2)
+const int    MIN_SIZE = 30;
+const int    MAX_SIZE = 80;
+const double ROT_PROB = 0.7;
 
-    if min_nets is None:
-        min_nets = max(2, n // 5)
-    if max_nets is None:
-        max_nets = max(min_nets, n // 2)
+const int MIN_BLOCKS_PER_NET = 2;
+const int MAX_BLOCKS_PER_NET = 10;
 
-    num_nets = random.randint(min_nets, max_nets)
-    ids = [f"B{i}" for i in range(1, n + 1)]
+const std::string OUTPUT_FILE = "input_test.txt"; // "" = stdout
 
-    nets = []
-    seen = set()  
-    for k in range(1, num_nets + 1):
-        k_max = min(max_blocks_per_net, n)
-        k_min = min(min_blocks_per_net, k_max)
-        size = random.randint(k_min, k_max)
+// ============================================================
 
-        block_ids = random.sample(ids, size)
-        key = tuple(sorted(block_ids))
-        if key in seen:
-            continue
-        seen.add(key)
+struct Block {
+    std::string id;
+    int width;
+    int height;
+    bool rotation_allowed;
+};
 
-        nets.append({
-            "net_id": f"N{k}",
-            "block_ids": block_ids
-        })
+struct Net {
+    std::string net_id;
+    std::vector<std::string> block_ids;
+};
 
-    return nets
+struct Design {
+    int chip_width;
+    int chip_height;
+    int grid_size;
+    bool rotation_allowed;
+    int line_size;
+};
 
-def validate_sequence_pair(sp, n):
-    ids = {f"B{i}" for i in range(1, n + 1)}
-    A, B = sp["A"], sp["B"]
-    errors = []
-    if len(A) != n:
-        errors.append(f"A: длина {len(A)} != {n}")
-    if len(B) != n:
-        errors.append(f"B: длина {len(B)} != {n}")
-    if len(set(A)) != n:
-        errors.append(f"A: дубликаты ({n - len(set(A))} шт.)")
-    if len(set(B)) != n:
-        errors.append(f"B: дубликаты ({n - len(set(B))} шт.)")
-    if set(A) != ids:
-        errors.append("A: не совпадает множество id")
-    if set(B) != ids:
-        errors.append("B: не совпадает множество id")
-    if errors:
-        print("ОШИБКИ в sequence_pair:", file=sys.stderr)
-        for e in errors:
-            print("  -", e, file=sys.stderr)
-        return False
-    print(f"OK: sequence_pair для {n} блоков корректна", file=sys.stderr)
-    return True
+struct DecoderParams {
+    bool use_b_tree;
+    bool allow_rotation_during_decode;
+    std::string placement_strategy;
+    bool use_rows;
+};
 
+// ---------- Генерация блоков ----------
+std::vector<Block> make_blocks(int n_blocks, int seed = SEED,
+    int min_size = MIN_SIZE,
+    int max_size = MAX_SIZE,
+    double rot_prob = ROT_PROB) {
+    std::mt19937 rng(seed);
+    std::uniform_int_distribution<int> dist_size(min_size, max_size);
+    std::uniform_int_distribution<int> dist_extra(10, 50);
+    std::uniform_real_distribution<double> dist_prob(0.0, 1.0);
 
-def validate_nets(nets, n):
-    ids = {f"B{i}" for i in range(1, n + 1)}
-    errors = []
-    for net in nets:
-        if not net["net_id"]:
-            errors.append("net с пустым net_id")
-        if len(net["block_ids"]) < 2:
-            errors.append(f'{net["net_id"]}: меньше 2 блоков')
-        for b in net["block_ids"]:
-            if b not in ids:
-                errors.append(f'{net["net_id"]}: неизвестный блок {b}')
-    if errors:
-        print("ОШИБКИ в nets:", file=sys.stderr)
-        for e in errors:
-            print("  -", e, file=sys.stderr)
-        return False
-    print(f"OK: {len(nets)} nets корректны", file=sys.stderr)
-    return True
-
-def format_sequence_pair(sp, per_line=10, indent=2):
-    pad = " " * indent
-    inner = " " * (indent + 2)
-    lines = ['{']
-    for key in ("A", "B"):
-        lines.append(f'{inner}"{key}": [')
-        arr = sp[key]
-        for i in range(0, len(arr), per_line):
-            chunk = arr[i:i + per_line]
-            line = inner + "  " + ", ".join(f'"{x}"' for x in chunk)
-            if i + per_line < len(arr):
-                line += ","
-            lines.append(line)
-        lines.append(f'{inner}]{"," if key == "A" else ""}')
-    lines.append(f'{pad}}}')
-    return "\n".join(lines)
-
-
-def format_blocks(blocks, indent=2):
-    pad = " " * indent
-    inner = " " * (indent + 2)
-    lines = ["["]
-    for i, b in enumerate(blocks):
-        lines.append(f"{inner}{{")
-        lines.append(f'{inner}  "id": "{b["id"]}",')
-        lines.append(f'{inner}  "width": {b["width"]},')
-        lines.append(f'{inner}  "height": {b["height"]},')
-        rot = "true" if b["rotation_allowed"] else "false"
-        lines.append(f'{inner}  "rotation_allowed": {rot}')
-        end = "," if i + 1 < len(blocks) else ""
-        lines.append(f"{inner}}}{end}")
-    lines.append(f"{pad}]")
-    return "\n".join(lines)
-
-
-def format_nets(nets, indent=2):
-    pad = " " * indent
-    inner = " " * (indent + 2)
-    lines = ["["]
-    for i, net in enumerate(nets):
-        lines.append(f"{inner}{{")
-        lines.append(f'{inner}  "net_id": "{net["net_id"]}",')
-        ids = ", ".join(f'"{x}"' for x in net["block_ids"])
-        lines.append(f'{inner}  "block_ids": [{ids}]')
-        end = "," if i + 1 < len(nets) else ""
-        lines.append(f"{inner}}}{end}")
-    lines.append(f"{pad}]")
-    return "\n".join(lines)
-
-
-def format_full_json(blocks, sp, nets, design, decoder_params):
-    lines = []
-    lines.append("{")
-    lines.append('  "design": {')
-    lines.append(f'    "chip_width": {design["chip_width"]},')
-    lines.append(f'    "chip_height": {design["chip_height"]},')
-    lines.append(f'    "grid_size": {design["grid_size"]},')
-    rot = "true" if design["rotation_allowed"] else "false"
-    lines.append(f'    "rotation_allowed": {rot}')
-    lines.append("  },")
-    lines.append('  "blocks": ' + format_blocks(blocks, indent=2) + ",")
-    lines.append('  "sequence_pair": ' + format_sequence_pair(sp, indent=2) + ",")
-    lines.append('  "nets": ' + format_nets(nets, indent=2) + ",")
-    lines.append('  "decoder_params": {')
-    lines.append('    "use_b_tree": ' +
-                 ("true" if decoder_params["use_b_tree"] else "false") + ",")
-    lines.append('    "allow_rotation_during_decode": ' +
-                 ("true" if decoder_params["allow_rotation_during_decode"]
-                  else "false") + ",")
-    lines.append(f'    "placement_strategy": "{decoder_params["placement_strategy"]}"')
-    lines.append("  }")
-    lines.append("}")
-    return "\n".join(lines)
-
-def generate(n=50, seed=42, strategy="min_hpwl"):
-    blocks = make_blocks(n, seed=seed)
-    sp     = make_sequence_pair(n, seed=seed)
-    nets   = make_nets(n, seed=seed)
-
-    if not validate_sequence_pair(sp, n):
-        sys.exit(1)
-    if not validate_nets(nets, n):
-        sys.exit(1)
-
-    total_area = sum(b["width"] * b["height"] for b in blocks)
-    side = int((total_area ** 0.5) * 2)
-
-    design = {
-        "chip_width":  side,
-        "chip_height": side,
-        "grid_size":   10,
-        "rotation_allowed": True
+    std::vector<Block> blocks;
+    blocks.reserve(n_blocks);
+    for (int i = 1; i <= n_blocks; ++i) {
+        int w = dist_size(rng);
+        int h = dist_size(rng);
+        if (w == h) h += dist_extra(rng);
+        blocks.push_back({
+            "B" + std::to_string(i),
+            w, h,
+            dist_prob(rng) < rot_prob
+            });
     }
-    decoder_params = {
-        "use_b_tree": False,
-        "allow_rotation_during_decode": True,
-        "placement_strategy": strategy
+    return blocks;
+}
+
+// ---------- Генерация sequence pair ----------
+struct SequencePair {
+    std::vector<std::string> A;
+    std::vector<std::string> B;
+};
+
+SequencePair make_sequence_pair(int n_blocks, int seed = SEED) {
+    std::mt19937 rng(seed + 1);
+    std::vector<std::string> ids;
+    ids.reserve(n_blocks);
+    for (int i = 1; i <= n_blocks; ++i)
+        ids.push_back("B" + std::to_string(i));
+
+    SequencePair sp;
+    sp.A = ids;
+    sp.B = ids;
+    std::shuffle(sp.A.begin(), sp.A.end(), rng);
+    std::shuffle(sp.B.begin(), sp.B.end(), rng);
+    return sp;
+}
+
+// ---------- Генерация цепей ----------
+std::vector<Net> make_nets(int n_blocks, int n_nets, int seed = SEED,
+    int min_blocks_per_net = MIN_BLOCKS_PER_NET,
+    int max_blocks_per_net = MAX_BLOCKS_PER_NET) {
+    std::mt19937 rng(seed + 2);
+
+    std::vector<std::string> ids;
+    ids.reserve(n_blocks);
+    for (int i = 1; i <= n_blocks; ++i)
+        ids.push_back("B" + std::to_string(i));
+
+    int k_max = std::min(max_blocks_per_net, n_blocks);
+    int k_min = std::min(min_blocks_per_net, k_max);
+
+    // Проверка: не больше, чем возможно уникальных комбинаций
+    // (приближённо: C(n, k) для k in [k_min, k_max])
+    auto comb = [](int n, int k) -> long long {
+        if (k < 0 || k > n) return 0;
+        if (k > n - k) k = n - k;
+        long long res = 1;
+        for (int i = 1; i <= k; ++i)
+            res = res * (n - k + i) / i;
+        return res;
+        };
+    long long max_possible = 0;
+    for (int k = k_min; k <= k_max; ++k) {
+        long long c = comb(n_blocks, k);
+        if (c < 0) {              // переполнение
+            max_possible = LLONG_MAX;
+            break;
+        }
+        max_possible += c;
+        if (max_possible < 0) {   // переполнение при сложении
+            max_possible = LLONG_MAX;
+            break;
+        }
     }
 
-    text = format_full_json(blocks, sp, nets, design, decoder_params)
+    if (n_nets > max_possible) {
+        std::cerr << "WARNING: n_nets=" << n_nets
+            << " > max_possible=" << max_possible
+            << ", уменьшаю до " << max_possible << "\n";
+        n_nets = (int)max_possible;
+    }
 
-    print(text)   # JSON в stdout
-    return text
+    std::vector<Net> nets;
+    std::set<std::vector<std::string>> seen;
+    int attempts = 0;
+    int max_attempts = n_nets * 100;
 
+    std::uniform_int_distribution<int> dist_size(k_min, k_max);
 
-if __name__ == "__main__":
-    generate(n=50, seed=42, strategy="min_hpwl")
+    while ((int)nets.size() < n_nets && attempts < max_attempts) {
+        ++attempts;
+        int size = dist_size(rng);
+
+        // Случайная выборка size элементов из ids
+        std::vector<std::string> shuffled = ids;
+        std::shuffle(shuffled.begin(), shuffled.end(), rng);
+        std::vector<std::string> block_ids(shuffled.begin(),
+            shuffled.begin() + size);
+
+        std::vector<std::string> key = block_ids;
+        std::sort(key.begin(), key.end());
+        if (seen.count(key)) continue;
+        seen.insert(key);
+
+        nets.push_back({
+            "N" + std::to_string(nets.size() + 1),
+            block_ids
+            });
+    }
+
+    if ((int)nets.size() < n_nets) {
+        std::cerr << "WARNING: сгенерировано только " << nets.size()
+            << " nets из " << n_nets << "\n";
+    }
+
+    return nets;
+}
+
+// ---------- Валидация ----------
+bool validate_sequence_pair(const SequencePair& sp, int n_blocks) {
+    std::set<std::string> ids;
+    for (int i = 1; i <= n_blocks; ++i)
+        ids.insert("B" + std::to_string(i));
+
+    std::vector<std::string> errors;
+    if ((int)sp.A.size() != n_blocks)
+        errors.push_back("A: длина " + std::to_string(sp.A.size()) +
+            " != " + std::to_string(n_blocks));
+    if ((int)sp.B.size() != n_blocks)
+        errors.push_back("B: длина " + std::to_string(sp.B.size()) +
+            " != " + std::to_string(n_blocks));
+
+    std::set<std::string> setA(sp.A.begin(), sp.A.end());
+    std::set<std::string> setB(sp.B.begin(), sp.B.end());
+
+    if ((int)setA.size() != n_blocks)
+        errors.push_back("A: дубликаты (" +
+            std::to_string(n_blocks - setA.size()) + " шт.)");
+    if ((int)setB.size() != n_blocks)
+        errors.push_back("B: дубликаты (" +
+            std::to_string(n_blocks - setB.size()) + " шт.)");
+
+    if (setA != ids) errors.push_back("A: не совпадает множество id");
+    if (setB != ids) errors.push_back("B: не совпадает множество id");
+
+    if (!errors.empty()) {
+        std::cerr << "ОШИБКИ в sequence_pair:\n";
+        for (const auto& e : errors) std::cerr << "  - " << e << "\n";
+        return false;
+    }
+    std::cerr << "OK: sequence_pair для " << n_blocks
+        << " блоков корректна\n";
+    return true;
+}
+
+bool validate_nets(const std::vector<Net>& nets, int n_blocks) {
+    std::set<std::string> ids;
+    for (int i = 1; i <= n_blocks; ++i)
+        ids.insert("B" + std::to_string(i));
+
+    std::vector<std::string> errors;
+    for (const auto& net : nets) {
+        if (net.net_id.empty())
+            errors.push_back("net с пустым net_id");
+        if (net.block_ids.size() < 2)
+            errors.push_back(net.net_id + ": меньше 2 блоков");
+        for (const auto& b : net.block_ids) {
+            if (!ids.count(b))
+                errors.push_back(net.net_id + ": неизвестный блок " + b);
+        }
+    }
+
+    if (!errors.empty()) {
+        std::cerr << "ОШИБКИ в nets:\n";
+        for (const auto& e : errors) std::cerr << "  - " << e << "\n";
+        return false;
+    }
+    std::cerr << "OK: " << nets.size() << " nets корректны\n";
+    return true;
+}
+
+// ---------- Форматирование ----------
+std::string format_blocks(const std::vector<Block>& blocks, int indent = 2) {
+    std::string pad(indent, ' ');
+    std::string inner(indent + 2, ' ');
+    std::ostringstream os;
+    os << "[\n";
+    for (size_t i = 0; i < blocks.size(); ++i) {
+        const auto& b = blocks[i];
+        os << inner << "{\n";
+        os << inner << "  \"id\": \"" << b.id << "\",\n";
+        os << inner << "  \"width\": " << b.width << ",\n";
+        os << inner << "  \"height\": " << b.height << ",\n";
+        os << inner << "  \"rotation_allowed\": "
+            << (b.rotation_allowed ? "true" : "false") << "\n";
+        os << inner << "}" << (i + 1 < blocks.size() ? "," : "") << "\n";
+    }
+    os << pad << "]";
+    return os.str();
+}
+
+std::string format_sequence_pair(const SequencePair& sp,
+    int per_line = 10, int indent = 2) {
+    std::string pad(indent, ' ');
+    std::string inner(indent + 2, ' ');
+    std::ostringstream os;
+    os << "{\n";
+
+    auto write_arr = [&](const std::vector<std::string>& arr,
+        const std::string& name, bool last) {
+            os << inner << "\"" << name << "\": [\n";
+            for (size_t i = 0; i < arr.size(); i += per_line) {
+                os << inner << "  ";
+                size_t end = std::min(arr.size(), i + per_line);
+                for (size_t j = i; j < end; ++j) {
+                    os << "\"" << arr[j] << "\"";
+                    if (j + 1 < end) os << ", ";
+                }
+                if (end < arr.size()) os << ",";
+                os << "\n";
+            }
+            os << inner << "]" << (last ? "" : ",") << "\n";
+        };
+
+    write_arr(sp.A, "A", false);
+    write_arr(sp.B, "B", true);
+    os << pad << "}";
+    return os.str();
+}
+
+std::string format_nets(const std::vector<Net>& nets, int indent = 2) {
+    std::string pad(indent, ' ');
+    std::string inner(indent + 2, ' ');
+    std::ostringstream os;
+    os << "[\n";
+    for (size_t i = 0; i < nets.size(); ++i) {
+        const auto& net = nets[i];
+        os << inner << "{\n";
+        os << inner << "  \"net_id\": \"" << net.net_id << "\",\n";
+        os << inner << "  \"block_ids\": [";
+        for (size_t j = 0; j < net.block_ids.size(); ++j) {
+            os << "\"" << net.block_ids[j] << "\"";
+            if (j + 1 < net.block_ids.size()) os << ", ";
+        }
+        os << "]\n";
+        os << inner << "}" << (i + 1 < nets.size() ? "," : "") << "\n";
+    }
+    os << pad << "]";
+    return os.str();
+}
+
+std::string format_full_json(const std::vector<Block>& blocks,
+    const SequencePair& sp,
+    const std::vector<Net>& nets,
+    const Design& design,
+    const DecoderParams& dp) {
+    std::ostringstream os;
+    os << "{\n";
+    os << "  \"design\": {\n";
+    os << "    \"chip_width\": " << design.chip_width << ",\n";
+    os << "    \"chip_height\": " << design.chip_height << ",\n";
+    os << "    \"grid_size\": " << design.grid_size << ",\n";
+    os << "    \"rotation_allowed\": "
+        << (design.rotation_allowed ? "true" : "false") << ",\n";
+    os << "    \"line_size\": " << design.line_size << "\n";
+    os << "  },\n";
+    os << "  \"blocks\": " << format_blocks(blocks, 2) << ",\n";
+    os << "  \"sequence_pair\": " << format_sequence_pair(sp, 10, 2) << ",\n";
+    os << "  \"nets\": " << format_nets(nets, 2) << ",\n";
+    os << "  \"decoder_params\": {\n";
+    os << "    \"use_b_tree\": " << (dp.use_b_tree ? "true" : "false") << ",\n";
+    os << "    \"allow_rotation_during_decode\": "
+        << (dp.allow_rotation_during_decode ? "true" : "false") << ",\n";
+    os << "    \"placement_strategy\": \"" << dp.placement_strategy << "\",\n";
+    os << "    \"use_rows\": " << (dp.use_rows ? "true" : "false") << "\n";
+    os << "  }\n";
+    os << "}\n";
+    return os.str();
+}
+
+// ---------- Основная функция ----------
+std::string generate() {
+    int n_blocks = N_BLOCKS;
+    int n_nets = (N_NETS < 0) ? std::max(2, n_blocks / 5) : N_NETS;
+
+    auto blocks = make_blocks(n_blocks);
+    auto sp = make_sequence_pair(n_blocks);
+    auto nets = make_nets(n_blocks, n_nets);
+
+    if (!validate_sequence_pair(sp, n_blocks)) std::exit(1);
+    if (!validate_nets(nets, n_blocks)) std::exit(1);
+
+    int side;
+    if (CHIP_SIDE < 0) {
+        long long total_area = 0;
+        for (const auto& b : blocks)
+            total_area += (long long)b.width * b.height;
+        side = (int)(std::sqrt((double)total_area) * 2.0);
+    }
+    else {
+        side = CHIP_SIDE;
+    }
+
+    Design design = { side, side, 10, true, LINE_SIZE };
+    DecoderParams dp = { USE_B_TREE, true, STRATEGY, USE_ROWS };
+
+    std::string text = format_full_json(blocks, sp, nets, design, dp);
+
+    if (!OUTPUT_FILE.empty()) {
+        std::ofstream f(OUTPUT_FILE);
+        if (!f) {
+            std::cerr << "Не удалось открыть " << OUTPUT_FILE << "\n";
+            std::exit(1);
+        }
+        f << text;
+        std::cerr << "Сохранено в " << OUTPUT_FILE << "\n";
+    }
+    else {
+        std::cout << text;
+    }
+
+    return text;
+}
+
+int main() {
+    generate();
+    return 0;
+}

@@ -34,6 +34,12 @@ public:
     static bool checkDecoderParams(const DecoderParams& p, QString& error);
 
     /************************************************************************************
+    *  @brief  Функция проверки корректности размешения ячеек в строке
+    ***********************************************************************************/
+    static bool checkRowsMode(const DecoderParams& p, const DesignData& d, 
+        const QVector<BlockData>& blocks, QString& error);
+
+    /************************************************************************************
     *  @brief  Функция проверки корректности булевых значений
     ***********************************************************************************/
     static bool parseBool(const QString& value, bool& out, QString& error, const QString& fieldName = "value");

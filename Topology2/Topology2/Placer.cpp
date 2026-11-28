@@ -104,6 +104,106 @@ static double scoreHPWL(const PlacementContext& ctx, const QVector<int>& x, cons
 	return total;
 }
 
+#include <map>
+
+/************************************************************************************
+ *  @brief  Быстрая «мягкая» привязка к строкам: сохраняет относительный порядок
+ *          блоков, сдвигает y вверх до кратного lineSize, при пересечении —
+ *          сдвигает x вправо. Гарантирует отсутствие наложений и «висящих» блоков.
+ *  @param  result     - результат размещения (изменяется на месте)
+ *          lineHeight - высота строки
+ *          chipWidth  - ширина кристалла
+ *          chipHeight - высота кристалла
+ *  @return true, если упаковка помещается в кристалл
+ ***********************************************************************************/
+bool applyRowSnapFast(PlacementResult& result, int lineHeight,
+	int channelSize, int chipWidth, int chipHeight) {
+	if (lineHeight <= 0) return true;
+	if (result.blocks.isEmpty()) return true;
+
+	const int step = lineHeight + channelSize;
+
+	const int n = result.blocks.size();
+
+	QVector<int> order(n);
+	std::iota(order.begin(), order.end(), 0);
+	std::sort(order.begin(), order.end(), [&](int a, int b) {
+		if (result.blocks[a].y != result.blocks[b].y)
+			return result.blocks[a].y < result.blocks[b].y;
+		return result.blocks[a].x < result.blocks[b].x;
+		});
+
+	std::map<int, std::map<int, int>> rowOccupancy;   
+
+	auto tryPlace = [&](int row, int x, int w, int h,
+		int& outX, int& outY) -> bool {
+			int rowsNeeded = (h + lineHeight - 1) / lineHeight;
+
+			for (int r = row; r < row + rowsNeeded; ++r) {
+				auto& occ = rowOccupancy[r];
+				int curX = x;
+				bool moved = true;
+				while (moved) {
+					moved = false;
+					for (auto it = occ.begin(); it != occ.end(); ++it) {
+						int ox1 = it->first, ox2 = it->second;
+						if (curX < ox2 && ox1 < curX + w) {
+							curX = ox2;
+							moved = true;
+							break;
+						}
+					}
+				}
+				x = curX;   
+			}
+
+			if (x + w > chipWidth) {
+				outX = 0;
+				outY = (row + rowsNeeded) * step;
+				return false;
+			}
+
+			outX = x;
+			outY = row * step;
+
+			for (int r = row; r < row + rowsNeeded; ++r) {
+				rowOccupancy[r][x] = x + w;
+			}
+			return true;
+		};
+
+	for (int idx : order) {
+		auto& p = result.blocks[idx];
+		int row = ((p.y + step - 1) / step);
+
+		int outX, outY;
+		while (!tryPlace(row, p.x, p.width, p.height, outX, outY)) {
+			row = (outY / step);
+			p.x = 0;  
+		}
+		p.x = outX;
+		p.y = outY;
+	}
+
+	int minX = INT_MAX, minY = INT_MAX;
+	int maxX = INT_MIN, maxY = INT_MIN;
+	for (const auto& p : result.blocks) {
+		minX = std::min(minX, p.x);
+		minY = std::min(minY, p.y);
+		maxX = std::max(maxX, p.x + p.width);
+		maxY = std::max(maxY, p.y + p.height);
+	}
+	result.minX = minX;
+	result.minY = minY;
+	result.maxX = maxX;
+	result.maxY = maxY;
+	result.totalWidth = maxX - minX;
+	result.totalHeight = maxY - minY;
+	result.area = 1LL * result.totalWidth * result.totalHeight;
+
+	return (result.maxX <= chipWidth && result.maxY <= chipHeight);
+}
+
 PlacementImprovements improve(const PlacementContext& ctx, QVector<int>& w, QVector<int>& h,
 	bool useBTree, const BTreeData& tree, int chipW, int chipH, const FileData& data, const QVector<bool>& rotated) {
 	const int n = ctx.n;
@@ -290,6 +390,12 @@ PlacementResult place(const FileData& data) {
 
 	if (useBTree) {
 		result.bTree = tree;
+	}
+
+	if (data.decoderParamsData.useTracing == true 
+		&& data.designData.lineSize > 0 && data.designData.channelSize > 0) {   
+		applyRowSnapFast(result, data.designData.lineSize, data.designData.channelSize,
+			data.designData.chipWidth, data.designData.chipHeight);
 	}
 
 	return result;

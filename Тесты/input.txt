@@ -2,7 +2,9 @@
   "design": {
     "chip_width": 300,
     "chip_height": 300,
-    "grid_size": 10
+    "grid_size": 10,
+    "line_size": 50,
+    "channel_size": 20
     },
   "blocks": [
     { 
@@ -41,7 +43,8 @@
     }
   ],
   "decoder_params": {
-    "use_b_tree": true,
+    "use_b_tree": false,
+    "use_tracing": true,
     "allow_rotation_during_decode": true,
     "placement_strategy": "bottom_left"
   }

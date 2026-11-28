@@ -194,7 +194,7 @@ void MainWindow::onViewClicked() {
 		return;
 	}
 
-	viewer->setPlacement(lastResult, lastData.designData, lastData.nets);
+	viewer->setPlacement(lastResult, lastData.designData, lastData.nets, lastData.decoderParamsData);
 	Logger::instance().log(tr("View: %1 blocks, chip %2 x %3").arg(lastResult.blocks.size())
 		.arg(lastData.designData.chipWidth).arg(lastData.designData.chipHeight));
 }

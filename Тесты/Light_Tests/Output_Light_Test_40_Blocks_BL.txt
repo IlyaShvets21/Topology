@@ -1,48 +1,48 @@
 
 Placement:
-   B1 at (530, 773) size 267x221 rotate no
-   B2 at (530, 1257) size 112x65 rotate no
-   B3 at (762, 1257) size 147x79 rotate no
-   B4 at (127, 907) size 218x202 rotate no
-   B5 at (424, 237) size 185x110 rotate no
-   B6 at (0, 1244) size 287x145 rotate yes
-   B7 at (1104, 293) size 156x178 rotate no
-   B8 at (287, 1244) size 198x82 rotate yes
-   B9 at (345, 907) size 125x134 rotate no
-   B10 at (127, 1109) size 276x135 rotate yes
-   B11 at (0, 306) size 165x100 rotate no
-   B12 at (1103, 994) size 139x164 rotate no
-   B13 at (0, 0) size 174x261 rotate no
-   B14 at (127, 859) size 198x48 rotate yes
-   B15 at (959, 0) size 149x206 rotate no
-   B16 at (1025, 372) size 79x113 rotate yes
-   B17 at (505, 559) size 198x214 rotate yes
-   B18 at (988, 994) size 115x227 rotate no
-   B19 at (840, 372) size 185x274 rotate no
-   B20 at (703, 293) size 256x79 rotate no
-   B21 at (470, 907) size 60x163 rotate no
-   B22 at (642, 1257) size 120x173 rotate no
-   B23 at (227, 0) size 290x237 rotate no
-   B24 at (530, 994) size 117x58 rotate no
-   B25 at (609, 0) size 63x293 rotate no
-   B26 at (485, 1555) size 264x74 rotate yes
-   B27 at (0, 788) size 60x71 rotate no
-   B28 at (165, 401) size 146x217 rotate yes
-   B29 at (0, 1430) size 210x157 rotate no
-   B30 at (0, 261) size 227x45 rotate no
-   B31 at (1103, 742) size 143x177 rotate no
-   B32 at (647, 994) size 159x225 rotate yes
-   B33 at (165, 306) size 259x95 rotate no
-   B34 at (703, 559) size 137x212 rotate no
-   B35 at (806, 994) size 182x263 rotate no
-   B36 at (909, 1257) size 47x298 rotate no
-   B37 at (311, 559) size 194x229 rotate no
-   B38 at (424, 347) size 258x212 rotate no
-   B39 at (1103, 646) size 84x96 rotate no
-   B40 at (0, 859) size 127x121 rotate no
+   B1 at (188, 238) size 74x65 rotate no
+   B2 at (188, 376) size 44x35 rotate no
+   B3 at (277, 376) size 50x37 rotate no
+   B4 at (45, 301) size 64x61 rotate no
+   B5 at (126, 68) size 58x43 rotate no
+   B6 at (0, 410) size 78x50 rotate yes
+   B7 at (376, 79) size 52x57 rotate no
+   B8 at (78, 410) size 61x38 rotate yes
+   B9 at (109, 301) size 46x48 rotate no
+   B10 at (45, 362) size 76x48 rotate yes
+   B11 at (0, 104) size 54x41 rotate no
+   B12 at (375, 303) size 49x54 rotate no
+   B13 at (0, 0) size 56x73 rotate no
+   B14 at (45, 270) size 60x31 rotate yes
+   B15 at (304, 0) size 51x62 rotate no
+   B16 at (339, 116) size 37x44 rotate yes
+   B17 at (171, 174) size 61x64 rotate yes
+   B18 at (331, 303) size 44x66 rotate no
+   B19 at (281, 116) size 58x75 rotate no
+   B20 at (232, 79) size 72x37 rotate no
+   B21 at (155, 301) size 33x54 rotate no
+   B22 at (232, 376) size 45x56 rotate no
+   B23 at (66, 0) size 78x68 rotate no
+   B24 at (188, 303) size 33x45 rotate yes
+   B25 at (184, 0) size 34x79 rotate no
+   B26 at (139, 456) size 73x36 rotate yes
+   B27 at (0, 234) size 33x36 rotate no
+   B28 at (54, 144) size 50x64 rotate yes
+   B29 at (0, 460) size 63x53 rotate no
+   B30 at (0, 73) size 66x31 rotate no
+   B31 at (375, 231) size 50x56 rotate no
+   B32 at (221, 303) size 53x66 rotate yes
+   B33 at (54, 104) size 72x40 rotate no
+   B34 at (232, 174) size 49x63 rotate no
+   B35 at (274, 303) size 57x73 rotate no
+   B36 at (327, 376) size 31x80 rotate no
+   B37 at (104, 174) size 67x60 rotate yes
+   B38 at (126, 111) size 72x63 rotate no
+   B39 at (375, 191) size 38x40 rotate no
+   B40 at (0, 270) size 45x47 rotate yes
 
 Quality metrics:
-   total area = 1260x1629
-   total HPWL = 293692
-   consumed memory = 0KiB
-   decoding time = 0.0432032s
+   total area = 428x513
+   total HPWL = 14801
+   consumed memory = 86424 KiB
+   decoding time = 0.0331256s

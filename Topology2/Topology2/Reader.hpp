@@ -27,6 +27,8 @@ struct DesignData {
 	int					chipWidth					= 0;
 	int					chipHeight					= 0;
 	int					gridSize					= 0;
+	int					lineSize					= 0;
+	int				    channelSize					= 0;
 };
 
 /************************************************************************************
@@ -63,10 +65,12 @@ struct DecoderParams {
 	bool				useBTree					= false;
 	bool				allowRotationDuringDecode	= false;
 	QString				placementStrategy			= "bottom_left";
+	bool				useTracing					= false;
 
 	bool				useBTreeSet					= false;
 	bool				allowRotationSet			= false;
 	bool				placementStrategySet		= false;
+	bool				useTracingSet				= false;
 };
 
 /************************************************************************************

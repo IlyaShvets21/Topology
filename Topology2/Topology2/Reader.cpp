@@ -242,6 +242,12 @@ bool read(const QString& filename, FileData& data) {
             else if (key == "grid_size") {
                 data.designData.gridSize = value.toInt();
             }
+            else if (key == "line_size") {
+                data.designData.lineSize = value.toInt();
+            }
+            else if (key == "channel_size") {
+                data.designData.channelSize = value.toInt();
+            }
             continue;
         }
 
@@ -473,6 +479,21 @@ bool read(const QString& filename, FileData& data) {
                 }
                 data.decoderParamsData.placementStrategy = parsePlacementStrategy;
                 data.decoderParamsData.placementStrategySet = true;  
+            }
+            else if (key == "use_tracing") {
+                QString error;
+                bool parsed;
+                if (!Validator::parseBool(value, parsed, error, "use_tracing")) {
+                    Logger::instance().log("Error: " + error);
+                    return false;
+                }
+                else if (Validator::parseBool(value, parsed, error, "use_tracing") 
+                    && (data.designData.lineSize <= 0 || data.designData.channelSize <= 0)) {
+                    Logger::instance().log("Error: line_size fnd channel_size must be positive when use_tracing: true");
+                    return false;
+                }
+                data.decoderParamsData.useTracing = parsed;
+                data.decoderParamsData.useTracingSet = true;
             }
             continue;
         }
